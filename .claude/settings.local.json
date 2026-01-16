@@ -12,5 +12,18 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Read and follow the custom instructions in .claude/custom-instructions.md for this session. You are ATLAS (Agent Testing & Laboratory Assistant)."
+          }
+        ]
+      }
+    ]
   }
 }
