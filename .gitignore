@@ -19,6 +19,12 @@ venv/
 tmpclaude-*
 .claude/cache/*
 
+# API Keys and Secrets
+configs/*.env
+!configs/*.env.example
+*.key
+*.secret
+
 # OS
 .DS_Store
 Thumbs.db
