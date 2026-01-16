@@ -1,0 +1,24 @@
+# Agent coordination - ephemeral status
+.agent/status/current/*
+
+# Sandbox temporary files
+sandbox/temp/*
+sandbox/work/*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+
+# Claude temporary files
+tmpclaude-*
+.claude/cache/*
+
+# OS
+.DS_Store
+Thumbs.db
