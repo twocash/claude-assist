@@ -38,5 +38,3 @@ echo.
 
 REM Launch Claude Code
 claude
-
-pause

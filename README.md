@@ -10,12 +10,40 @@
 
 ## Quick Start
 
-```bash
-# Check infrastructure health
-/chief-of-staff
+### Launch Claude Code (Interactive Model Selection)
 
-# Run test agent
-python sandbox/test-agent.py
+**Windows:**
+```cmd
+launch-claude.bat
+```
+
+**Linux/WSL/SSH:**
+```bash
+./launch-claude.sh
+```
+
+This will prompt you to select a model backend:
+1. Native (Anthropic Claude Sonnet 4.5)
+2. MiniMax M2.1
+3. Exit
+
+---
+
+## Direct Launch (No Prompt)
+
+### Native Anthropic (Default)
+```cmd
+launchers\claude-native.bat
+```
+
+### MiniMax M2.1
+```cmd
+launchers\claude-minimax.bat
+```
+
+### Standard (No launcher)
+```bash
+claude
 ```
 
 ---
@@ -25,6 +53,9 @@ python sandbox/test-agent.py
 - `.agent/` - Coordination infrastructure
 - `sandbox/` - Testing workspace
 - `.claude/` - Local skill/note storage
+- `skills/` - Custom skills system
+- `launchers/` - Model-specific launchers
+- `configs/` - Model configurations
 
 ---
 
@@ -35,6 +66,7 @@ python sandbox/test-agent.py
 - Multi-agent coordination patterns
 - Notion sync mechanisms
 - Dispatch protocols
+- **Multiple LLM backends**
 
 **Once proven:** Deploy to `grove-foundation` repo.
 
@@ -45,6 +77,66 @@ python sandbox/test-agent.py
 Python 3.14.0 available at: `C:\Python314\python.exe`
 
 Required packages: (TBD - create requirements.txt as needed)
+
+---
+
+## ATLAS Persona
+
+The default agent persona (ATLAS - Agent Testing & Laboratory Assistant) loads automatically on session start, regardless of which model backend you choose.
+
+To manually activate:
+```
+load ATLAS
+```
+
+---
+
+## Available Skills
+
+- `/skill-builder` - Create new skills interactively
+- `/gitfun <url>` - Analyze GitHub repo installation difficulty
+- `/agent-dispatch` - Launch test agents with activation prompts
+- `/load-persona` - Load ATLAS or custom personas
+
+**Deploy skills:**
+```cmd
+deploy-skills.bat
+```
+
+---
+
+## Model Backends
+
+### Native (Anthropic)
+- Model: Claude Sonnet 4.5
+- Best for: Production work, highest quality
+- Setup: None (default)
+
+### MiniMax M2.1
+- Model: MiniMax-M2.1
+- Best for: Testing, cost optimization
+- Setup: Set `MINIMAX_API_KEY` environment variable
+- Get key: https://platform.minimax.io/
+
+See `launchers/README.md` for detailed setup instructions.
+
+---
+
+## Remote Access (iPhone/SSH)
+
+```bash
+# SSH into machine
+ssh jim@your-machine
+
+# Switch to user (if needed)
+su jim
+
+# Navigate to project
+cd /mnt/c/github/claude-assist
+
+# Launch with model selection
+./launch-claude.sh
+```
 
 ---
 

@@ -17,5 +17,3 @@ set ANTHROPIC_DEFAULT_HAIKU_MODEL=
 
 REM Launch Claude Code
 claude
-
-pause
