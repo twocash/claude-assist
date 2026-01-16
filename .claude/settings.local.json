@@ -11,7 +11,12 @@
       "Bash(chmod:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(claude mcp list:*)"
+      "Bash(claude mcp list:*)",
+      "Bash(pip show:*)",
+      "Bash(echo $ANTHROPIC_API_KEY)",
+      "Bash(pip install:*)",
+      "mcp__plugin_Notion_notion__notion-fetch",
+      "mcp__plugin_Notion_notion__notion-update-page"
     ]
   },
   "hooks": {
