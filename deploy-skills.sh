@@ -27,11 +27,17 @@ deploy_skill() {
 echo ""
 echo "Meta Skills:"
 deploy_skill "meta" "skill-builder"
+deploy_skill "meta" "load-persona"
 
 # Deploy coordination skills
 echo ""
 echo "Coordination Skills:"
 deploy_skill "coordination" "agent-dispatch"
+
+# Deploy utility skills
+echo ""
+echo "Utility Skills:"
+deploy_skill "utilities" "gitfun"
 
 # Add more as we build them
 # deploy_skill "coordination" "health-check"
@@ -43,7 +49,9 @@ echo "=============================================="
 echo "Deployment complete!"
 echo ""
 echo "Available skills:"
-echo "  /skill-builder"
-echo "  /agent-dispatch"
+echo "  /skill-builder - Create new skills"
+echo "  /load-persona - Load ATLAS or other personas"
+echo "  /agent-dispatch - Launch test agents"
+echo "  /gitfun - Analyze GitHub repo installation difficulty"
 echo ""
-echo "Test with: /skill-builder"
+echo "Test with: /gitfun https://github.com/some/repo"
