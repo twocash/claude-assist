@@ -6,7 +6,8 @@
       "Bash(python:*)",
       "Bash(git commit:*)",
       "Bash(git add:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "WebSearch"
     ]
   }
 }
