@@ -3,7 +3,10 @@
     "allow": [
       "Bash(test:*)",
       "Bash(python -c:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(tree:*)"
     ]
   }
 }
