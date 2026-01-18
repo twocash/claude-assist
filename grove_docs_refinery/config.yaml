@@ -1,0 +1,70 @@
+# Grove Docs Refinery Configuration
+
+refinery:
+  # Directory structure (relative to refinery root)
+  input_dir: "input"
+  output_dirs:
+    drafts: "drafts"
+    reviews: "reviews"
+    refined: "refined"
+  logs: "logs"
+
+  # Processing settings
+  batch_size: 5
+  max_revisions: 2
+
+editor:
+  # Model to use for editing
+  model: "sonnet"
+
+  # Paths to methodology files
+  checkpoint_path: "editorial-checkpoint.md"
+  engine_path: "editorial-engine.md"
+
+reviewer:
+  # Model to use for review
+  model: "sonnet"
+
+  # Paths to methodology files
+  checkpoint_path: "editorial-checkpoint.md"
+  engine_path: "editorial-engine.md"
+
+# Grove editorial standards
+standards:
+  voice:
+    - "Strategic, not smug"
+    - "Concrete over abstract"
+    - "Honest about uncertainty"
+    - "8th-grade accessibility, graduate-level thinking"
+    - "Active voice, present tense"
+
+  terminology:
+    "Exploration architecture":
+      - "AI platform"
+      - "decentralized AI"
+    "Agents":
+      - "bots"
+      - "AI assistants"
+    "The Observer":
+      - "user"
+    "Credits":
+      - "tokens"
+    "Trellis Architecture": []
+    "Grove": []
+
+  # Terms that should be removed or avoided
+  avoid:
+    - "revolutionary"
+    - "paradigm shift"
+    - "Web3"
+    - "democratize"
+    - "might"
+    - "could potentially"
+    - "it's possible that"
+    - "It's important to note that"
+    - "In order to"
+    - "tokenomics"
+    - "network effects"
+    - "moats"
+    - "the future of AI"
+    - "unprecedented capabilities"

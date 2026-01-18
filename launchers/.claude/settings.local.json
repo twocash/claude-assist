@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del:*)",
+      "Bash(powershell -Command:*)",
+      "mcp__plugin_Notion_notion__notion-search",
+      "mcp__plugin_Notion_notion__notion-fetch",
+      "mcp__plugin_Notion_notion__notion-update-page",
+      "WebFetch(domain:github.com)",
+      "Bash(sh:*)",
+      "Bash(uv tool install:*)",
+      "Bash(uv python list)",
+      "Bash(git clone:*)",
+      "Bash(uv venv)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(uv pip install:*)",
+      "Bash(.venv/Scripts/activate:*)",
+      "Bash(git submodule update:*)",
+      "Bash(where:*)",
+      "Bash(\"C:\\\\Python314\\\\python.exe\" -m pip install -e . --verbose)",
+      "Bash(\"C:\\\\Users\\\\jim\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\python3.13.exe\" --version)",
+      "Bash(python3.13 -m pip install:*)",
+      "Bash(wsl --list)",
+      "Bash(wsl python3:*)",
+      "Bash(\"C:\\\\Python313\\\\python.exe\" -m pip install sentence-transformers faiss-cpu --quiet)",
+      "Bash(\"C:\\\\Python313\\\\python.exe\" \"C:/GitHub/claude-assist/workspace/leann-evaluation/rag_engine.py\")",
+      "Bash(\"C:\\\\Python313\\\\python.exe\" -c \"\nfrom rag_engine import GroveRAG\nrag = GroveRAG\\(\\)\nrag.load_model\\(\\)\nrag.load\\(\\)\n\nqueries = [''What is the Trellis Architecture?'', ''Explain the Foundation Loop'', ''How do sprouts work?'']\nfor q in queries:\n    print\\(f''\\\\n=== {q} ===''\\)\n    results = rag.search\\(q, top_k=3\\)\n    for r in results:\n        print\\(f''{r.score:.3f} | {r.title[:50]}...''\\)\n        print\\(f''   {r.excerpt[:100]}...''\\)\n\")",
+      "Bash(\"C:\\\\Python313\\\\python.exe\" -c \"\nimport sys\nsys.path.insert\\(0, ''.''\\)\nfrom rag_engine import GroveRAG\nrag = GroveRAG\\(\\)\nrag.load_model\\(\\)\nrag.load\\(\\)\n\nqueries = [''What is the Trellis Architecture?'', ''Explain the Foundation Loop'', ''How do sprouts work?'']\nfor q in queries:\n    print\\(f''\\\\n=== {q} ===''\\)\n    results = rag.search\\(q, top_k=3\\)\n    for r in results:\n        print\\(f''{r.score:.3f} | {r.title[:50]}...''\\)\n        print\\(f''   {r.excerpt[:100]}...''\\)\n\")",
+      "Bash(\"C:\\\\Python313\\\\python.exe\" -m pip install flask flask-cors anthropic --quiet)",
+      "Bash(powershell.exe Get-Process:*)",
+      "Bash(Select-Object:*)",
+      "mcp__plugin_Notion_notion__notion-create-pages",
+      "mcp__plugin_Notion_notion__notion-get-teams"
+    ]
+  }
+}

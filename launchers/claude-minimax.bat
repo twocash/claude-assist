@@ -4,7 +4,6 @@ REM Launch Claude Code with MiniMax M2.1 model
 echo ============================================
 echo Launching Claude Code: MINIMAX MODE
 echo Model: MiniMax-M2.1
-echo Base URL: https://api.minimax.io/anthropic
 echo ============================================
 echo.
 
@@ -20,11 +19,9 @@ if "%MINIMAX_API_KEY%"=="" (
     exit /b 1
 )
 
-REM Configure MiniMax environment
+REM Configure MiniMax environment (clear Anthropic defaults first)
 set ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
 set ANTHROPIC_AUTH_TOKEN=%MINIMAX_API_KEY%
-set API_TIMEOUT_MS=3000000
-set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 set ANTHROPIC_MODEL=MiniMax-M2.1
 set ANTHROPIC_SMALL_FAST_MODEL=MiniMax-M2.1
 set ANTHROPIC_DEFAULT_SONNET_MODEL=MiniMax-M2.1
@@ -37,4 +34,4 @@ echo   Model: MiniMax-M2.1
 echo.
 
 REM Launch Claude Code
-claude
+claude %*

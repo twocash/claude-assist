@@ -1,7 +1,7 @@
 # Skills Directory
 
-**Repository:** claude-assist testbed
-**Purpose:** Prototype and test skills before deploying to ~/.claude/skills/
+**Repository:** ATLAS Personal Chief of Staff
+**Purpose:** Skills for task delegation and personal productivity
 
 ---
 
@@ -9,34 +9,35 @@
 
 ```
 skills/
-├── .templates/          # Skill templates and boilerplates
-├── coordination/        # Agent coordination skills
-├── testing/             # Testing and validation skills
-├── utilities/           # General utility skills
-└── README.md
+├── .templates/          # Skill templates
+├── coordination/        # Task coordination skills
+├── meta/                # Skills about skills
+└── utilities/           # General utility skills
 ```
 
 ---
 
 ## Skill Categories
 
-### Coordination Skills
-Skills for managing multi-agent workflows:
-- Status monitoring and health checks
-- Agent dispatch and lifecycle management
-- Cross-agent communication protocols
+### Meta Skills
+Skills for creating and managing other skills:
+- **skill-builder** - Interactive wizard for creating new skills
+- **load-persona** - Activate custom agent personas
 
-### Testing Skills
-Skills for validating agent behavior:
-- Mock data generation
-- Protocol compliance testing
-- Simulated workflows
+### Coordination Skills
+Skills for delegating tasks and monitoring progress:
+- **agent-dispatch** - Delegate tasks to specialized agents
+- **health-check** - Validate ATLAS workspace health
+- **heartbeat-monitor** - Monitor active task progress
+- **status-inspector** - Analyze task details and history
 
 ### Utility Skills
 General-purpose tools:
-- File operations
-- Data transformation
-- Environment inspection
+- **gitfun** - Analyze GitHub repo installation difficulty
+- **directory-map** - Directory structure visualization
+- **git-snapshot** - Create git commit snapshots
+- **python-env** - Python environment information
+- **sandbox-clean** - Clean workspace/temp files
 
 ---
 
@@ -45,8 +46,7 @@ General-purpose tools:
 1. Copy template from `.templates/skill-template.md`
 2. Define trigger phrases and purpose
 3. Write skill instructions
-4. Test in sandbox environment
-5. Deploy to ~/.claude/skills/ when proven
+4. Place in appropriate category directory
 
 ---
 
@@ -61,4 +61,4 @@ Each skill is a markdown file with:
 
 ---
 
-*Skills tested here, deployed to production when proven.*
+*ATLAS Skills - Delegate smart, execute well*

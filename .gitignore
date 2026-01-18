@@ -20,10 +20,26 @@ tmpclaude-*
 .claude/cache/*
 
 # API Keys and Secrets
+.env
+.env.local
 configs/*.env
 !configs/*.env.example
+!.env.example
 *.key
 *.secret
+
+# Draft storage (contains session-specific data)
+grove_research_generator/drafts/*.md
+!grove_research_generator/drafts/.gitkeep
+
+# LEANN index files (large, regeneratable)
+*.leann
+
+# Temporary/generated files
+nul
+starred_repos.json
+standardized_repos.json
+github_stars_export.csv
 
 # OS
 .DS_Store

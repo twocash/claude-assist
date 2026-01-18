@@ -1,0 +1,17 @@
+# Claude Agent Settings
+# Tune these parameters to control API behavior
+
+writer:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 16000
+  temperature: 0.3  # Lower = more consistent
+
+reviewer:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 4000
+  temperature: 0.2  # Even lower for validation
+
+# Model options:
+# - claude-sonnet-4-20250514 (default, good balance)
+# - claude-opus-4-20250514 (highest quality, slower, more expensive)
+# - claude-haiku-3-5-20241022 (fastest, cheapest, for simple docs)

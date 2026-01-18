@@ -1,0 +1,11 @@
+{
+  "drafts": {
+    "test-page-123": {
+      "topic": "Test Topic",
+      "format": "blog",
+      "created_at": "2026-01-18T13:41:58.448436",
+      "status": "complete",
+      "edited_content": "C:\\GitHub\\claude-assist\\grove_research_generator\\drafts\\test-page-123_edited.md"
+    }
+  }
+}

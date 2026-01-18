@@ -91,17 +91,47 @@ load ATLAS
 
 ---
 
-## Available Skills
+## Available Skills ✅ 22/22 COMPLETE
 
+### Meta Tools (2)
 - `/skill-builder` - Create new skills interactively
-- `/gitfun <url>` - Analyze GitHub repo installation difficulty
-- `/agent-dispatch` - Launch test agents with activation prompts
 - `/load-persona` - Load ATLAS or custom personas
+
+### Coordination (4)
+- `/health-check` - Infrastructure health validator
+- `/agent-dispatch` - Launch test agents with activation prompts
+- `/status-inspector` - Log entry analyzer
+- `/heartbeat-monitor` - Real-time agent tracker
+
+### Testing (4)
+- `/mock-sprint` - Fake sprint generator
+- `/protocol-validator` - Format compliance checker
+- `/workflow-simulator` - Multi-agent scenario tester
+- `/log-analyzer` - Report generator
+
+### Utilities (5)
+- `/gitfun <url>` - Analyze GitHub repo installation difficulty
+- `/python-env` - Python health checker
+- `/sandbox-clean` - Cleanup utility
+- `/git-snapshot` - Git context viewer
+- `/directory-map` - Structure mapper
+
+### Advanced (7)
+- `/protocol-adapter` - MCP/A2A/ANP protocol translation
+- `/approval-checkpoint` - Bounded autonomy with approval gates
+- `/parallel-dispatch` - Multi-agent parallel execution
+- `/test-healer` - Auto-heal flaky tests
+- `/risk-analyzer` - Predictive test prioritization
+- `/mesh-coordinator` - Peer-to-peer coordination
+- `/audit-trail` - Decision provenance tracking
 
 **Deploy skills:**
 ```cmd
-deploy-skills.bat
+deploy-skills.bat  # Windows
+./deploy-skills.sh # Linux/WSL
 ```
+
+**See:** `docs/SKILLS_MASTER_PLAN.md` for details
 
 ---
 

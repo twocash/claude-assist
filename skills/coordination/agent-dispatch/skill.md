@@ -1,13 +1,13 @@
 # Agent Dispatch
 
-> Launch test agents with proper activation prompts and tracking
+> Delegate tasks to specialized agents with proper context and tracking
 
 ---
 
 ## Identity
 
 **Name:** Agent Dispatch
-**Persona:** Efficient coordinator who ensures agents launch with everything they need
+**Persona:** Efficient coordinator who ensures delegated agents have everything they need
 **Mode:** Plan
 
 ---
@@ -16,95 +16,117 @@
 
 Activate when user says:
 - "dispatch agent"
-- "launch agent"
+- "delegate to agent"
 - "spawn agent"
 - "start agent"
+- "run task via agent"
+- "delegate this to developer"
+- "delegate to dev"
+- "use developer agent"
 
 ---
 
 ## Purpose
 
-Agent Dispatch streamlines the process of launching test agents in the coordination testbed. It selects the appropriate agent role, generates a complete activation prompt with all necessary context, and provides launch instructions. This ensures every agent starts with proper configuration and knows exactly what to do.
+Agent Dispatch enables ATLAS to delegate tasks to specialized execution agents. It selects the appropriate agent, generates a complete activation prompt with all necessary context, and provides clear execution instructions. This keeps ATLAS in plan mode while ensuring tasks get executed properly.
+
+**For project work (like building tools, refactoring, prototyping), always use the DEVELOPER agent.** The developer agent handles Python scripts, file operations, and implementation tasks that require multiple steps.
+
+---
+
+## When to Use Each Agent
+
+| Task Type | Agent | Example |
+|-----------|-------|---------|
+| Small coding fix (<5 min) | `quick-fix` | Fix typo, rename variable |
+| Research & summarize | `researcher` | Look up topic, create summary |
+| Write drafts/content | `drafter` | Create doc, write email |
+| File operations | `file-organizer` | Move, rename, organize |
+| **Project work** | **`developer`** | Build tool, refactor, prototype, run scripts |
 
 ---
 
 ## Instructions
 
-### Step 1: Select Agent Role
+### Step 1: Select Agent Type
 
-List available roles from `.agent/roles/` directory:
-- Read all .md files in `.agent/roles/`
-- Display role names (filenames without .md)
-- Ask user which role to dispatch
+List available agent scripts from `agents/` directory:
+- Read all .py or .sh files in `agents/`
+- Display agent names and brief descriptions
+- Ask user which agent to dispatch
 
-### Step 2: Gather Context
+**Default Personal Agents:**
+- `quick-fix` - Small coding tasks (<5 min)
+- `researcher` - Look up and summarize information
+- `drafter` - Write first drafts, docs, content
+- `file-organizer` - Move, rename, organize files
+- `developer` - Project work: build tools, refactor, prototype, run scripts
 
-Based on selected role, ask relevant questions:
+### Step 2: Gather Task Context
+
+Based on selected agent, ask relevant questions:
 
 **For all agents:**
-- Sprint name (if applicable)
-- Branch to work on (default: main)
+- Task description (what needs to be done)
+- Task ID or name (for tracking)
 
-**For specific roles:**
-- `developer` → Ask for sprint directory path
-- `test-agent` → Ask for test scenario
-- `qa-reviewer` → Ask for sprint to review
+**For specific agents:**
+- `quick-fix` → What's the file and what change is needed?
+- `researcher` → What topic and what format for results?
+- `drafter` → What's the topic and target length?
+- `file-organizer` → Source and destination paths
+- `developer` → What's the project description, target location, and any specific requirements?
 
-### Step 3: Read Role Definition
+### Step 3: Read Agent Definition
 
-- Read the selected role file from `.agent/roles/{role-name}.md`
-- Extract key responsibilities
-- Note any special requirements
+- Read the agent script to understand its capabilities
+- Note input format and expected parameters
+- Identify any required files or context
 
 ### Step 4: Generate Activation Prompt
 
 Build activation prompt with this structure:
 
 ```markdown
-# Agent Activation: {role-name}
+# Task Delegation: {task-name}
 
-You are acting as **{ROLE-NAME}** for the claude-assist coordination testbed.
+You are acting as **{AGENT-NAME}** for ATLAS Chief of Staff.
 
-**Sprint:** {sprint-name or N/A}
-**Branch:** {branch-name}
-**Mode:** {mode from role definition}
+**Task:** {task-description}
+**Task ID:** {task-id}
+**Mode:** Execute
 
 ## Your Responsibilities
 
-{paste from role definition}
+{agent capabilities and purpose from agent script}
 
-## Reference Documents
+## Input Context
 
-- Role Definition: `.agent/roles/{role-name}.md`
-- Status Template: `.agent/status/ENTRY_TEMPLATE.md`
-- Coordination Config: `.agent/config/coordination.yaml`
-{additional docs if relevant}
+{task-specific context, files, URLs, etc.}
 
-## Status Update Protocol
+## Success Criteria
 
-Write status entries to: `.agent/status/current/`
-Format: `{NNN}-{timestamp}-{role-name}.md`
-Update heartbeat every 5 minutes
+{what done looks like - concrete, measurable}
 
-## Execution Context
+## Output Requirements
 
-{sprint-specific context or test scenario}
+{what to deliver when complete}
 
 ---
 
 *Activation prompt generated by agent-dispatch v1.0*
 ```
 
-### Step 5: Display Launch Instructions
+### Step 5: Display Execution Instructions
 
 Show user:
 
 ```
-=== Agent Ready to Launch ===
+=== Agent Ready ===
 
-Role: {role-name}
-Sprint: {sprint-name}
-Branch: {branch-name}
+Agent: {agent-name}
+Task: {task-name}
+ID: {task-id}
 
 --- Copy activation prompt below ---
 
@@ -112,13 +134,12 @@ Branch: {branch-name}
 
 --- End activation prompt ---
 
-Launch Instructions:
-1. Open new terminal/window
-2. Navigate to: C:\github\claude-assist
-3. Paste the activation prompt above
-4. Agent will begin execution
+Execution:
+1. Open new Claude Code session
+2. Paste the activation prompt above
+3. Agent will execute the task
 
-Monitor status at: .agent/status/current/
+Track progress: workspace/tasks/{task-id}/
 
 ===================================
 ```
@@ -128,9 +149,30 @@ Monitor status at: .agent/status/current/
 Ask user: "Track this dispatch? (yes/no)"
 
 If yes:
-- Create dispatch log entry in `.agent/status/current/`
-- Record: timestamp, role, sprint, branch, status=DISPATCHED
-- Display confirmation
+- Create tracking file: `workspace/tasks/{task-id}/dispatch.json`
+- Record: timestamp, agent, task, status=RUNNING
+- Display confirmation with tracking path
+
+### Step 7: Notion Update (Project Work)
+
+For developer agent dispatches or significant project work:
+
+1. Use `notion-create-pages` to add entry to "Atlas Tasks" database
+2. Include:
+   - Title: Project name + version/status
+   - Priority: P1-P3 based on importance
+   - Tags: ["grove", "code", "docs", "system"] as JSON array
+   - ATLAS Notes: Brief description of work done
+
+**Atlas Tasks Database ID:** `aca396884dd14050a73f20242b362db5`
+
+Example Notion entry:
+```
+Title: Grove Docs Refinery v1.0
+Priority: P2
+Tags: ["grove", "docs", "refactor"]
+ATLAS Notes: Created refinery system, ran first test on SPROUT_SYSTEM.md - PASS
+```
 
 ---
 
@@ -138,62 +180,86 @@ If yes:
 
 Agent Dispatch delivers:
 1. A complete, copy-paste-ready activation prompt
-2. Clear launch instructions
-3. Monitoring guidance (where to check status)
+2. Clear execution instructions
+3. Tracking guidance (where to check progress)
 4. Optional dispatch tracking entry
 
 ---
 
 ## Examples
 
-### Example 1: Dispatching Developer Agent
+### Example 1: Dispatching Quick-Fix Agent
 
 ```
 User: dispatch agent
 
-Agent Dispatch: Which agent role should I dispatch?
+Agent Dispatch: Which agent should I dispatch?
 
-Available roles:
-- chief-of-staff
-- developer
-- test-agent
-- qa-reviewer
+Available agents:
+- quick-fix - Small coding tasks (<5 min)
+- researcher - Research and summarize
+- drafter - Write drafts and docs
+- file-organizer - File operations
 
-User: developer
+User: quick-fix
 
-Agent Dispatch: What sprint should the developer work on?
+Agent Dispatch: What's the task description?
 
-User: skill-builder-v1
+User: Fix the typo in the README.md header
 
-Agent Dispatch: Which branch? (default: main)
+Agent Dispatch: What's the task ID for tracking? (optional)
 
-User: main
+User: fix-readme-typo
 
 Agent Dispatch: Generating activation prompt...
 
-=== Agent Ready to Launch ===
+=== Agent Ready ===
 
-Role: developer
-Sprint: skill-builder-v1
-Branch: main
+Agent: quick-fix
+Task: Fix the typo in the README.md header
+ID: fix-readme-typo
 
 --- Copy activation prompt below ---
 
-# Agent Activation: developer
+# Task Delegation: fix-readme-typo
 
-You are acting as **DEVELOPER** for sprint: **skill-builder-v1**
+You are acting as **QUICK-FIX** for ATLAS Chief of Staff.
 
-[... full activation prompt ...]
+**Task:** Fix the typo in the README.md header
+**Task ID:** fix-readme-typo
+**Mode:** Execute
+
+## Your Responsibilities
+
+Execute small coding tasks quickly and safely. Make minimal, focused changes.
+Verify changes compile/run if applicable. Ask before making non-trivial changes.
+
+## Input Context
+
+File: README.md
+Issue: Typo in header (specify the exact typo)
+
+## Success Criteria
+
+- Typo is corrected
+- File saves successfully
+
+## Output Requirements
+
+Report: "Fixed {file}: {change made}"
+
+---
+
+*Activation prompt generated by agent-dispatch v1.0*
 
 --- End activation prompt ---
 
-Launch Instructions:
-1. Open new terminal/window
-2. Navigate to: C:\github\claude-assist
-3. Paste the activation prompt above
-4. Agent will begin execution
+Execution:
+1. Open new Claude Code session
+2. Paste the activation prompt above
+3. Agent will execute the task
 
-Monitor status at: .agent/status/current/
+Track progress: workspace/tasks/fix-readme-typo/
 
 ===================================
 
@@ -201,33 +267,36 @@ Track this dispatch? (yes/no)
 
 User: yes
 
-Agent Dispatch: ✓ Dispatch logged to .agent/status/current/005-2026-01-16T05-00-00Z-dispatch.md
+Agent Dispatch: ✓ Dispatch tracked at workspace/tasks/fix-readme-typo/dispatch.json
 ```
 
-### Example 2: Dispatching Test Agent
+### Example 2: Dispatching Researcher Agent
 
 ```
-User: launch agent
+User: delegate to researcher
 
-Agent Dispatch: Which agent role?
+Agent Dispatch: What's the research topic?
 
-User: test-agent
+User: Latest developments in AI agents
 
-Agent Dispatch: What test scenario?
+Agent Dispatch: What format for results?
 
-User: heartbeat-update-test
+User: Brief summary with key links
 
-[... generates activation prompt specific to test-agent ...]
+Agent Dispatch: What's the task ID?
+
+User: ai-agents-research
+
+[... generates researcher activation prompt ...]
 ```
 
 ---
 
 ## Dependencies
 
-- `.agent/roles/*.md` - Agent role definitions
-- `.agent/status/ENTRY_TEMPLATE.md` - Status entry format
-- `.agent/config/coordination.yaml` - Configuration
-- Read tool - For reading role files
+- `agents/*.py` or `agents/*.sh` - Agent scripts
+- `workspace/tasks/` - Task tracking directory
+- Read tool - For reading agent scripts
 - AskUserQuestion tool - Interactive questions
 - Write tool - For dispatch tracking (optional)
 
@@ -236,17 +305,32 @@ User: heartbeat-update-test
 ## Notes
 
 **Best Practices:**
-- Always read role definition before generating prompt
-- Include all necessary reference paths
+- Always read agent script before generating prompt
+- Provide clear, specific task descriptions
+- Include concrete success criteria
 - Make activation prompts copy-paste ready
-- Track dispatches for coordination visibility
+- Track dispatches for visibility
+- Update Notion for project work
 
-**Future Enhancements:**
-- Auto-detect available sprints from docs/sprints/
-- Suggest relevant branch based on sprint status
-- Integration with status-inspector for monitoring
-- Multi-agent dispatch (launch several at once)
+**Task ID Format:**
+- Use descriptive names: `{action}-{target}-{unique}`
+- Examples: `fix-readme-typo`, `research-ai-agents`, `organize-downloads`
+
+**ATLAS Workflow:**
+1. ATLAS receives request
+2. Classifies: quick task (<5 min), project work, or delegate?
+3. If project work: use `developer` agent
+4. If delegate: use agent-dispatch with appropriate agent
+5. Agent executes
+6. Agent reports back to ATLAS
+7. ATLAS synthesizes for user
+8. Update Notion "Atlas Tasks" database for project tracking
+
+**Project Work Pattern:**
+- "delegate this to developer" → Creates tools, runs scripts, implements features
+- After completion → Update Notion with status, files processed, results
+- Next session → Search Notion "@Atlas" to resume context
 
 ---
 
-*Agent Dispatch v1.0 - Launch with confidence*
+*Agent Dispatch v1.1 - Delegate with confidence, track in Notion*

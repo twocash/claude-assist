@@ -6,14 +6,21 @@ Multiple ways to launch Claude Code with different model backends.
 
 ## Available Launchers
 
-### 1. Native (Default Anthropic)
+### 1. Sonnet (Default)
 ```cmd
-launchers\claude-native.bat
+launchers\claude-sonnet.bat
 ```
 **Model:** Claude Sonnet 4.5 (Anthropic)
-**Use for:** Production work, official Claude models
+**Use for:** Daily development work, balanced performance/cost
 
-### 2. MiniMax M2.1
+### 2. Opus (High Performance)
+```cmd
+launchers\claude-opus.bat
+```
+**Model:** Claude Opus 4 (Anthropic)
+**Use for:** Complex reasoning, writing, high-quality output
+
+### 3. MiniMax M2.1
 ```cmd
 launchers\claude-minimax.bat
 ```
@@ -60,10 +67,15 @@ launchers\claude-minimax.bat
 
 Create shortcuts on your desktop:
 
-**Native Claude:**
-- Target: `C:\github\claude-assist\launchers\claude-native.bat`
+**Claude Sonnet (Default):**
+- Target: `C:\github\claude-assist\launchers\claude-sonnet.bat`
 - Start in: `C:\github\claude-assist`
-- Name: "Claude Code (Native)"
+- Name: "Claude Code (Sonnet)"
+
+**Claude Opus (High Performance):**
+- Target: `C:\github\claude-assist\launchers\claude-opus.bat`
+- Start in: `C:\github\claude-assist`
+- Name: "Claude Code (Opus)"
 
 **MiniMax:**
 - Target: `C:\github\claude-assist\launchers\claude-minimax.bat`
@@ -74,13 +86,12 @@ Create shortcuts on your desktop:
 
 ## Model Comparison
 
-| Feature | Native (Anthropic) | MiniMax M2.1 |
-|---------|-------------------|--------------|
-| Model Quality | Highest | Good |
-| Speed | Fast | Fast |
-| Cost | Standard | Lower |
-| API Compatibility | 100% | Claude-compatible |
-| Best For | Production | Testing, cost-saving |
+| Feature | Claude Sonnet | Claude Opus | MiniMax M2.1 |
+|---------|---------------|-------------|--------------|
+| Model Quality | High | Highest | Good |
+| Speed | Fast | Medium | Fast |
+| Cost | Standard | Premium | Lower |
+| Best For | Daily dev | Complex tasks | Testing, cost-saving |
 
 ---
 
@@ -120,4 +131,27 @@ To add another model backend:
 
 ---
 
-*Updated: 2026-01-16*
+---
+
+## Troubleshooting
+
+### "Claude Code keeps using MiniMax even when running claude-opus.bat"
+
+**Cause:** `MINIMAX_API_KEY` is set permanently in Windows environment variables.
+
+**Fix:**
+```powershell
+# Run PowerShell as Administrator
+[System.Environment]::SetEnvironmentVariable('MINIMAX_API_KEY', '', 'User')
+```
+
+Then close all terminals and reopen.
+
+**Alternative:**
+1. `Win + R` → `sysdm.cpl`
+2. Advanced → Environment Variables
+3. Delete `MINIMAX_API_KEY` from User variables
+
+---
+
+*Updated: 2026-01-17*
