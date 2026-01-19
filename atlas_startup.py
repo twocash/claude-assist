@@ -20,9 +20,13 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 
 import requests
+from dotenv import load_dotenv
 
-# Configuration
-NOTION_KEY = os.environ.get('NOTION_ATLAS_API_KEY', '')
+# Load environment variables from .env file
+load_dotenv()
+
+# Configuration - support both naming conventions
+NOTION_KEY = os.environ.get('NOTION_ATLAS_API_KEY', '') or os.environ.get('NOTION_API_KEY', '')
 TASK_DB_ID = os.environ.get('NOTION_ATLAS_TASK_DATABASE_ID', '')
 DB_IDS_ENV = os.environ.get('NOTION_ATLAS_DATABASES', '')
 INBOX_DB_ID = os.environ.get('NOTION_ATLAS_INBOX_ID', 'c298b60934d248beb2c50942436b8bfe')
@@ -50,6 +54,17 @@ TASK_PATTERNS = [
     re.compile(r'atlas,?\s+(?:please|would you|can you)\s+(.+)', re.IGNORECASE),
     re.compile(r'task[:\s]+(.+)', re.IGNORECASE),
 ]
+
+# Disposition patterns - for actioning content via comments
+DISPOSITION_PATTERNS = {
+    'approved': re.compile(r'@atlas\s+approved?', re.IGNORECASE),
+    'published': re.compile(r'@atlas\s+(?:published?|publish)', re.IGNORECASE),
+    'complete': re.compile(r'@atlas\s+(?:complete|done|finished|ready)', re.IGNORECASE),
+    'revise': re.compile(r'@atlas\s+(?:revise|revision|needs? work)', re.IGNORECASE),
+    'reject': re.compile(r'@atlas\s+(?:reject|rejected|decline)', re.IGNORECASE),
+    'archive': re.compile(r'@atlas\s+(?:archive|file|store)', re.IGNORECASE),
+    'canon': re.compile(r'@atlas\s+(?:canon|canonical|add to (?:the )?(?:technical )?canon)', re.IGNORECASE),
+}
 
 
 def get_atlas_user_id() -> Optional[str]:
@@ -192,6 +207,65 @@ def extract_atlas_mentions(text: str) -> List[str]:
             mentions.append(context_match.group(1).strip())
 
     return mentions
+
+
+def extract_disposition_command(text: str) -> Optional[Dict[str, str]]:
+    """Extract disposition command from comment text.
+
+    Returns dict with 'action' and 'full_text' if found, None otherwise.
+    """
+    for action, pattern in DISPOSITION_PATTERNS.items():
+        if pattern.search(text):
+            return {
+                'action': action,
+                'full_text': text.strip()
+            }
+    return None
+
+
+def get_pending_dispositions() -> List[Dict]:
+    """Scan all pages for pending @atlas disposition commands in comments."""
+    print("  Scanning for disposition comments...")
+
+    all_pages = get_all_pages()
+    dispositions = []
+
+    for page in all_pages:
+        page_id = page['id']
+        page_title = get_page_title(page)
+        page_url = f"https://www.notion.so/{page_id.replace('-', '')}"
+
+        # Get comments on this page
+        comments = get_page_comments(page_id)
+
+        for comment in comments:
+            comment_text = rich_text_to_text(comment.get('rich_text', []))
+            disposition = extract_disposition_command(comment_text)
+
+            if disposition:
+                # Get comment author
+                author = comment.get('created_by', {})
+                author_name = author.get('name', 'Unknown')
+                author_id = author.get('id', '')
+
+                # Get comment timestamp
+                created_time = comment.get('created_time', '')
+
+                dispositions.append({
+                    'page_id': page_id,
+                    'page_title': page_title,
+                    'page_url': page_url,
+                    'comment_id': comment.get('id', ''),
+                    'action': disposition['action'],
+                    'full_text': disposition['full_text'],
+                    'author': author_name,
+                    'author_id': author_id,
+                    'created_time': created_time
+                })
+
+        time.sleep(0.1)  # Rate limit
+
+    return dispositions
 
 
 def determine_priority(task_text: str) -> str:
@@ -382,24 +456,34 @@ def main():
         print("Set it via environment variable or .env file")
         sys.exit(1)
 
-    print(f"\n[1/6] Authenticating Atlas...")
+    print(f"\n[1/7] Authenticating Atlas...")
     atlas_user_id = get_atlas_user_id()
     if not atlas_user_id:
         print("  Failed to authenticate. Check API key.")
         sys.exit(1)
     print(f"  Atlas authenticated successfully")
 
-    print(f"\n[2/6] Checking for pending plans awaiting approval...")
+    print(f"\n[2/7] Checking for pending plans awaiting approval...")
     pending_plans = get_pending_plans()
     if pending_plans:
-        print(f"  ⚠️  Found {len(pending_plans)} pending plan(s):")
+        print(f"  Found {len(pending_plans)} pending plan(s):")
         for plan in pending_plans:
             print(f"    [{plan['priority']}] {plan['title'][:50]}")
         print(f"\n  These plans need approval before execution.")
     else:
         print(f"  No pending plans. Clear to execute.")
 
-    print(f"\n[3/6] Finding databases to scan...")
+    print(f"\n[3/7] Scanning for disposition comments (@atlas approved/published/etc)...")
+    pending_dispositions = get_pending_dispositions()
+    if pending_dispositions:
+        print(f"  Found {len(pending_dispositions)} disposition command(s):")
+        for disp in pending_dispositions:
+            print(f"    [{disp['action'].upper()}] {disp['page_title'][:40]}")
+            print(f"      Comment: {disp['full_text'][:60]}...")
+    else:
+        print(f"  No pending dispositions.")
+
+    print(f"\n[4/7] Finding databases to scan...")
     databases = get_shared_databases()
     print(f"  Found {len(databases)} databases")
 
@@ -407,7 +491,7 @@ def main():
         print(f"\n  WARNING: NOTION_ATLAS_TASK_DATABASE_ID not set")
         print("  Tasks will be counted but not created")
 
-    print(f"\n[4/6] Scanning all pages for @Atlas mentions...")
+    print(f"\n[5/7] Scanning all pages for @Atlas task mentions...")
     all_pages = get_all_pages()
     print(f"  Found {len(all_pages)} accessible pages")
 
@@ -431,7 +515,7 @@ def main():
     print(f"\n  Found {len(unique_tasks)} unique task mentions")
 
     if unique_tasks:
-        print(f"\n[5/6] Creating tasks in Atlas Tasks database...")
+        print(f"\n[6/7] Creating tasks in Atlas Tasks database...")
         created_count = 0
         for task in unique_tasks:
             # Check if this looks like a task (not just a casual mention)
@@ -440,29 +524,45 @@ def main():
                 success = create_task_in_database(task, task['page_url'])
                 if success:
                     created_count += 1
-                    print(f"  ✓ {task['content'][:50]}...")
+                    print(f"  Created: {task['content'][:50]}...")
 
         print(f"\n  Created {created_count} tasks in Notion")
 
-        print(f"\n[6/6] Task Summary:")
-        for task in unique_tasks[:5]:
+        print(f"\n[7/7] Summary:")
+        print(f"  Tasks: {len(unique_tasks)}")
+        for task in unique_tasks[:3]:
             priority = determine_priority(task['content'])
-            print(f"  [{priority}] {task['content'][:50]}...")
-        if len(unique_tasks) > 5:
-            print(f"  ... and {len(unique_tasks) - 5} more")
+            print(f"    [{priority}] {task['content'][:50]}...")
+        if len(unique_tasks) > 3:
+            print(f"    ... and {len(unique_tasks) - 3} more")
     else:
-        print(f"\n[5/6] No tasks to create")
-        print(f"\n[6/6] Ready for new mentions!")
+        print(f"\n[6/7] No tasks to create")
+        print(f"\n[7/7] Summary:")
+
+    # Summary of dispositions
+    if pending_dispositions:
+        print(f"\n  Dispositions awaiting action: {len(pending_dispositions)}")
+        for disp in pending_dispositions[:3]:
+            print(f"    [{disp['action'].upper()}] {disp['page_title'][:40]}")
+        if len(pending_dispositions) > 3:
+            print(f"    ... and {len(pending_dispositions) - 3} more")
 
     print("\n" + "=" * 60)
     print("ATLAS STARTUP COMPLETE")
-    print(f"Processed {len(unique_tasks)} task mentions")
+    print(f"Tasks: {len(unique_tasks)} | Dispositions: {len(pending_dispositions)} | Plans: {len(pending_plans)}")
     print("=" * 60)
 
     # Output for consumption by other scripts
     print("\n## ATLAS_STARTUP_JSON_START##")
     print(json.dumps({
         'pending_plans': [{'title': p['title'], 'priority': p['priority'], 'url': p['url']} for p in pending_plans],
+        'pending_dispositions': [{
+            'action': d['action'],
+            'page_title': d['page_title'],
+            'page_url': d['page_url'],
+            'page_id': d['page_id'],
+            'comment': d['full_text']
+        } for d in pending_dispositions],
         'task_count': len(unique_tasks),
         'tasks': [{'content': t['content'], 'priority': determine_priority(t['content'])} for t in unique_tasks[:10]]
     }))
