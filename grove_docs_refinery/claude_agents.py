@@ -142,20 +142,41 @@ Remember to preserve intentional honesty in sections about caveats, risks, and u
         print(f"    Source: {len(source_content):,} chars")
 
         settings = self._settings.get("writer", {})
-        response = self._client.messages.create(
-            model=settings.get("model", "claude-sonnet-4-20250514"),
-            max_tokens=settings.get("max_tokens", 16000),
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_message}]
-        )
+        model = settings.get("model", "claude-sonnet-4-20250514")
+        max_tokens = settings.get("max_tokens", 16000)
 
-        raw_response = response.content[0].text
+        # Use streaming for Opus to handle long-running requests
+        # (Anthropic API requires streaming for requests that may exceed 10 minutes)
+        if "opus" in model.lower():
+            print(f"    Using streaming for {model}...")
+            raw_response = ""
+            with self._client.messages.stream(
+                model=model,
+                max_tokens=max_tokens,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_message}]
+            ) as stream:
+                for text in stream.text_stream:
+                    raw_response += text
+        else:
+            response = self._client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_message}]
+            )
+            raw_response = response.content[0].text
+
         print(f"    Response: {len(raw_response):,} chars")
 
         return self._parse_response(source_name, raw_response)
 
     def _parse_response(self, source_name: str, raw_response: str) -> Draft:
-        """Parse Claude's response into Draft structure."""
+        """Parse Claude's response into Draft structure.
+
+        Uses unique markers (===REWRITE START===, ===CONTENT START===, ===REWRITE END===)
+        to avoid conflicts with --- used as section dividers in documents.
+        """
         diagnosis = ""
         key_changes = []
         flags = []
@@ -176,12 +197,18 @@ Remember to preserve intentional honesty in sections about caveats, risks, and u
             elif "### Flags for Review" in line:
                 current_section = "flags"
                 continue
-            elif line.strip() == "---" and current_section == "flags":
+            # Use new unique markers
+            elif "===CONTENT START===" in line:
                 content_started = True
                 current_section = "content"
                 continue
-            elif content_started and line.strip() == "---":
+            elif "===REWRITE END===" in line and content_started:
                 break
+            # Legacy support for old --- format
+            elif line.strip() == "---" and current_section == "flags" and not content_started:
+                content_started = True
+                current_section = "content"
+                continue
 
             if current_section == "diagnosis" and line.strip():
                 diagnosis += line.strip() + " "
@@ -194,13 +221,25 @@ Remember to preserve intentional honesty in sections about caveats, risks, and u
 
         content = "\n".join(content_lines).strip()
 
-        # Fallback if parsing failed
-        if not content:
-            parts = raw_response.split("---")
-            if len(parts) >= 3:
-                content = "---".join(parts[2:]).strip()
-            else:
-                content = raw_response
+        # Fallback: Try to extract content between markers
+        if not content or len(content) < 500:
+            if "===CONTENT START===" in raw_response:
+                start = raw_response.find("===CONTENT START===") + len("===CONTENT START===")
+                end = raw_response.find("===REWRITE END===")
+                if end == -1:
+                    end = len(raw_response)
+                content = raw_response[start:end].strip()
+            elif "---" in raw_response:
+                # Legacy fallback
+                parts = raw_response.split("---")
+                if len(parts) >= 3:
+                    # Take everything after the second ---
+                    content = "---".join(parts[2:]).strip()
+                    # Remove trailing --- if present (end marker)
+                    if content.endswith("---"):
+                        content = content[:-3].strip()
+                else:
+                    content = raw_response
 
         return Draft(
             original_name=source_name,

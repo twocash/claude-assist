@@ -147,30 +147,95 @@ rag.save()
 
 ---
 
+## Notion Sync (NEW - January 2026)
+
+**The sync module is now operational!**
+
+### Current State
+- **31 documents** in `refined/` are linked to Notion Grove Corpus
+- Each file has `notion_id` and `notion_url` in YAML frontmatter
+- Bidirectional sync available via `sync/` module
+
+### Workflow
+```
+Jim edits in Notion  →  Sync pulls to refined/  →  Local canonical backup
+     (source)              (atlas runs)              (versioned)
+```
+
+### Commands
+```bash
+# Pull all documents from Notion
+python -m grove_docs_refinery.sync.pull_all
+
+# Pull single document
+python -c "from sync.pull import PullManager; from sync.api import get_api; PullManager(get_api()).pull_page('PAGE_ID')"
+
+# Audit properties
+python -m grove_docs_refinery.sync.audit_properties
+
+# Update domains
+python -m grove_docs_refinery.sync.update_domains --apply
+```
+
+### Linkage Verified
+All refined files have notion_id linking them to Notion:
+```yaml
+---
+notion_id: 2ed780a7-8eef-8103-ad94-ff897214dd1e
+notion_url: https://www.notion.so/The-Training-Ratchet-...
+last_synced: '2026-01-19T22:06:38.958698'
+---
+```
+
+---
+
 ## Known Limitations
 
-1. **Rules-based, not LLM-based**
-   - The editor uses regex patterns, not Claude
-   - Heavy rewriting requires manual review
+1. **Long documents may exceed context limits**
+   - Documents over 30KB need Opus or chunking
+   - REVISE verdicts often indicate context overflow
 
-2. **No Notion sync yet**
-   - Final docs stay on filesystem
-   - Manual push to Notion needed
-
-3. **ESCALATE items need decisions**
+2. **ESCALATE items need decisions**
    - These appear in the run manifest
    - Requires human judgment
 
----
-
-## Next Steps (After Jim's Review)
-
-1. [ ] Run full batch processing
-2. [ ] Review ESCALATE items
-3. [ ] Push refined docs to Notion
-4. [ ] Rebuild RAG index with refined corpus
-5. [ ] Share on web via RAG interface
+3. **Refinery drafts are not linked to Notion**
+   - input/ → drafts/ → reviews/ pipeline is separate
+   - For documents already in Notion, use sync instead
 
 ---
 
-**Ready when you are!**
+## Batch Processing Results (2026-01-20)
+
+**Opus Batch Run Completed:**
+- **34 documents processed successfully** using claude-opus-4-20250514
+- **Total refined documents: 65** (up from 31)
+- **Runtime: 122.8 minutes**
+
+### Remaining Items
+- **2 REVISE docs** - May need manual review:
+  - `251200-V-THESIS-Grove World Changing Play V2 Draft.md`
+  - `251200-S-PATTERN-Hub Prefixes and Rules.md`
+
+- **6 ERROR docs** - API credits needed for re-run:
+  - `260100-S-SPEC-DEX Master Code Hygiene Agent.md`
+  - `260100-S-EXEC-DEX Master Scan Prompt.md`
+  - `260105-S-SPEC-Exploration Architecture Self Validation.md`
+  - `251230-S-ARCH-Trellis Bedrock Addendum.md`
+  - `251200-V-ECON-Declining Take Rate Mechanism.md`
+  - `251200-V-ECON-Reverse Progressive Tax Model.md`
+
+---
+
+## Next Steps
+
+1. [x] Run batch processing with Opus ✓ (34/42 success)
+2. [ ] Re-run 6 failed docs (when API credits available)
+3. [ ] Review 2 REVISE docs manually
+4. [ ] Push new refined docs to Notion
+5. [ ] Archive legacy input/drafts/reviews folders
+6. [ ] Establish Notion-first workflow
+
+---
+
+**65 documents ready for Notion sync!**

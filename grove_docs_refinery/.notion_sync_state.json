@@ -1,0 +1,219 @@
+{
+  "last_sync": "2026-01-18T20:55:56.063473",
+  "documents": {
+    "2ed780a7-8eef-817b-86eb-df2ffaa40c33": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "4cd8ebbcb679fe49c979067c6cf0d9bd",
+      "local_file": "260119-v-vision-the-asymptotic-convergence-of-capital-and-cognitio.md--FINAL.md",
+      "title": "The Asymptotic Convergence of Capital and Cognition: A Risk Assessment of the Stargate Paradigm and Societal Stability"
+    },
+    "2ed780a7-8eef-811e-b24d-f658362a0b26": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "aa9b7d2569913cf7111888e051fd6620",
+      "local_file": "260119-v-vision-grove-economics-deep-dive.md--FINAL.md",
+      "title": "Grove Economics Deep Dive"
+    },
+    "2ed780a7-8eef-8115-9413-f15281daca82": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "0a3af1e37df4c0000782e3edf5624134",
+      "local_file": "260119-v-vision-local-ai-infrastructure-capability-trajectory-2023.md--FINAL.md",
+      "title": "Local AI Infrastructure Capability Trajectory 2023-2025: A Technical Analysis"
+    },
+    "2ed780a7-8eef-814d-a7f1-cbe104eac09c": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "3db5e1e4484b627b595dbe428857eb16",
+      "local_file": "260119-v-vision-why-distributed-ai-infrastructure-is-the-structura.md--FINAL.md",
+      "title": "Why Distributed AI Infrastructure Is the Structural Answer to AI Concentration"
+    },
+    "2ed780a7-8eef-81a7-9ee5-cbfdfb3f9032": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "bbc91658b64700a3eaff7a96eb8f1dc5",
+      "local_file": "260119-v-vision-grove-simulation-deep-dive.md--FINAL.md",
+      "title": "Grove Simulation Deep Dive"
+    },
+    "2ed780a7-8eef-8151-b854-fa17b1680cfc": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "dbc225b83da8418bcd5c4b3b5b071f15",
+      "local_file": "260119-v-vision-the-grove-terminal-a-deep-dive.md--FINAL.md",
+      "title": "The Grove Terminal: A Deep Dive"
+    },
+    "2ed780a7-8eef-8187-b68d-ec5fac6d3b45": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "e6aad93b1b8be83f0fe46a2204682396",
+      "local_file": "260119-v-vision-the-training-ratchet.md--FINAL.md",
+      "title": "The Training Ratchet"
+    },
+    "2ed780a7-8eef-81b6-8c9d-fcf3a57701ec": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "4e42a556d9a3a7603946997c59c88b0c",
+      "local_file": "260119-v-vision-chinese-open-source-ai-ratchet-acceleration-eviden.md--FINAL.md",
+      "title": "Chinese Open-Source AI: Ratchet Acceleration Evidence"
+    },
+    "2ed780a7-8eef-810d-afde-e579060063f5": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "65d4960d321d5d5c2e3e064ef426a518",
+      "local_file": "260119-v-vision-exploration-architecture-thesis.md--FINAL.md",
+      "title": "Exploration Architecture Thesis"
+    },
+    "2ed780a7-8eef-812d-854f-d0fc00e21b68": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "040b9568255ab12d968ffc045d1e6166",
+      "local_file": "260119-v-vision-hivemind-as-infrastructure-foundation-for-grove-s-.md--FINAL.md",
+      "title": "Hivemind as Infrastructure Foundation for Grove's Distributed AI Architecture"
+    },
+    "2ed780a7-8eef-81f2-b8c6-d444868a734b": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "3c8369d0a5dfce3a00beb2fca7c68b40",
+      "local_file": "260119-v-vision-the-kinetic-framework-infrastructure-for-hybrid-co.md--FINAL.md",
+      "title": "The Kinetic Framework: Infrastructure for Hybrid Cognition"
+    },
+    "2ed780a7-8eef-816a-b9ed-ce28f6de3eb5": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "a23897fd24de0726cd838297d1c740cd",
+      "local_file": "260119-v-vision-how-translation-emerged-in-llms-an-academic-exeges.md--FINAL.md",
+      "title": "How Translation \"Emerged\" in LLMs — An Academic Exegesis (Chicago Notes)"
+    },
+    "2ed780a7-8eef-81d6-b868-ec1a8cfadd27": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "880a0163bb2840a49d6e7fcc611afebd",
+      "local_file": "260119-v-vision-world-models-and-memory-architectures-for-grove-s-.md--FINAL.md",
+      "title": "World Models and Memory Architectures for Grove's Exploration Infrastructure"
+    },
+    "2ed780a7-8eef-816a-b6f2-d4edd9cdbe37": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "6659b280010caea7dac71e276214371e",
+      "local_file": "260119-v-vision-purdue-academic-strategy.md--FINAL.md",
+      "title": "Purdue: Academic Strategy"
+    },
+    "2ed780a7-8eef-8155-ba93-eebdc8ab7a8f": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "e2af674171fa2eeb8e1b1e6fc84d4388",
+      "local_file": "260119-v-vision-grove-your-personal-ai-village.md--FINAL.md",
+      "title": "Grove: Your Personal AI Village"
+    },
+    "2ed780a7-8eef-81fb-aa17-dbd37463d9ca": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "de15937120040adbbb47cb10df636c0d",
+      "local_file": "260119-v-vision-grove-exploration-architecture-summary.md--FINAL.md",
+      "title": "Grove: Exploration Architecture Summary"
+    },
+    "2ed780a7-8eef-8159-8873-f2acf05fc5f6": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "33154de1802205879295d6020922c135",
+      "local_file": "260119-v-vision-the-research-intelligence-problem-has-a-name-now.md--FINAL.md",
+      "title": "The Research Intelligence Problem Has a Name Now"
+    },
+    "2ed780a7-8eef-816c-aeee-d0f3dbdd68b5": {
+      "last_edited": "2026-01-19T01:50:00.000Z",
+      "content_hash": "1059cdf87dc2406a2114cb0a421eb9b0",
+      "local_file": "260119-v-vision-research-note-the-chronicler-as-cognitive-archaeol.md--FINAL.md",
+      "title": "Research Note: The Chronicler as Cognitive Archaeology"
+    },
+    "2ed780a7-8eef-811e-87eb-f5cdce4e41b6": {
+      "last_edited": "2026-01-19T01:51:00.000Z",
+      "content_hash": "b601757766526e6acecd42bbeb5516f3",
+      "local_file": "260119-v-vision-the-sprout-system-a-recursive-model-for-collective.md--FINAL.md",
+      "title": "The Sprout System: A Recursive Model for Collective Intelligence Cultivation"
+    },
+    "2ed780a7-8eef-81b3-8844-c88d4b088e00": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "91b199640f07684f9a5182468c7afde6",
+      "local_file": "260119-s-software-a2ui-protocol-evaluation-for-grove-inspector-archi.md--FINAL.md",
+      "title": "A2UI Protocol Evaluation for Grove Inspector Architecture"
+    },
+    "2ed780a7-8eef-8184-b8bd-ecf853d03b80": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "49c454fdd47e400f1051b4eab1d835a9",
+      "local_file": "260119-s-software-field-architecture.md--FINAL.md",
+      "title": "Field Architecture"
+    },
+    "2ed780a7-8eef-8125-b049-e2ab3b4bdcb2": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "cc10ddf1951f789075840c126c809596",
+      "local_file": "260119-s-software-the-trellis-architecture-first-order-directives.md--FINAL.md",
+      "title": "The Trellis Architecture: First Order Directives"
+    },
+    "2ed780a7-8eef-817c-ac26-e37e4cdb261b": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "69eb7e74919d29fe967c5259a3b6962d",
+      "local_file": "260119-s-software-the-trellis-architecture-first-order-directives.md--FINAL.md",
+      "title": "The Trellis Architecture: First Order Directives"
+    },
+    "2ed780a7-8eef-815f-b6cb-f64b7b7f6a8c": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "9ea51e829ea9ac9d72af7255b92061ee",
+      "local_file": "260119-s-software-grove-foundation-loop-sprint-methodology.md--FINAL.md",
+      "title": "Grove Foundation Loop — Sprint Methodology"
+    },
+    "2ed780a7-8eef-8161-86e3-e88899689259": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "abdabe3f4dd49d34a44bdef316839c59",
+      "local_file": "260119-s-software-grove-foundation-loop-sprint-methodology.md--FINAL.md",
+      "title": "Grove Foundation Loop — Sprint Methodology"
+    },
+    "2ed780a7-8eef-811f-b014-e08070cc7dba": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "4f003fdae0650273f014c669efa856f2",
+      "local_file": "260119-s-software-user-story-refinery-v1.md--FINAL.md",
+      "title": "User Story Refinery v1"
+    },
+    "2ed780a7-8eef-8190-a807-ccdf699a21f4": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "02eeb0dd03cbd8d8527855da82b119c0",
+      "local_file": "260119-s-software-grove-white-paper-prompt-kit.md--FINAL.md",
+      "title": "Grove White Paper Prompt Kit"
+    },
+    "2ed780a7-8eef-810b-a670-fed2622d77a4": {
+      "last_edited": "2026-01-19T01:47:00.000Z",
+      "content_hash": "a1abe9009915723ab7357633ab9d8f34",
+      "local_file": "260119-s-software-the-copilot-configurator-local-intelligence-for-de.md--FINAL.md",
+      "title": "The Copilot Configurator: Local Intelligence for Declarative Exploration"
+    },
+    "2ed780a7-8eef-81e2-9a4f-c7264a530b1f": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "cf18e65fd9f0667323d48d644c12f5b9",
+      "local_file": "260119-s-software-trellis-architecture-kernel-codex.md--FINAL.md",
+      "title": "Trellis Architecture Kernel Codex"
+    },
+    "2ed780a7-8eef-810b-b151-ed7c4aa47aac": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "c29511e177e72d838b54c0f6eb9a6a91",
+      "local_file": "260119-s-software-architecture-documentation-refactoring-sprint-dece.md--FINAL.md",
+      "title": "Architecture Documentation Refactoring Sprint - December 2024"
+    },
+    "2ed780a7-8eef-81e1-8ad6-c50da321f44a": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "f673f64e68a151d9eafc1bba4ca06a05",
+      "local_file": "260119-s-software-bedrock-information-architecture.md--FINAL.md",
+      "title": "Bedrock Information Architecture"
+    },
+    "2ed780a7-8eef-818f-92b6-d0ca53d9260c": {
+      "last_edited": "2026-01-19T01:48:00.000Z",
+      "content_hash": "b4ffc86a093d07159d527877c63aaec7",
+      "local_file": "260119-s-software-grove-execution-protocol-v1-4.md--FINAL.md",
+      "title": "Grove Execution Protocol v1.4"
+    },
+    "2ed780a7-8eef-81ba-a8ff-e69160ad7666": {
+      "last_edited": "2026-01-19T01:51:00.000Z",
+      "content_hash": "293a1e4bc3860d53c9859ce451385944",
+      "local_file": "260119-s-software-pattern-10-declarative-wizard-engine.md--FINAL.md",
+      "title": "Pattern 10: Declarative Wizard Engine"
+    },
+    "2ed780a7-8eef-8131-a5f0-f8c5d7a6174d": {
+      "last_edited": "2026-01-19T01:51:00.000Z",
+      "content_hash": "fbfaab884087c55dd5d94e51fa822399",
+      "local_file": "260119-s-software-grove-hygiene-launcher-web-app-spec.md--FINAL.md",
+      "title": "Grove Hygiene Launcher — Web App Spec"
+    },
+    "2ed780a78eef8103ad94ff897214dd1e": {
+      "notion_id": "2ed780a78eef8103ad94ff897214dd1e",
+      "local_file": "251217-v-research-the-training-ratchet.md--FINAL.md",
+      "title": "The Training Ratchet",
+      "notion_last_edited": "2026-01-19T20:00:00.000Z",
+      "local_last_modified": "2026-01-19T22:55:55.417641",
+      "last_synced": "2026-01-19T22:55:55.417662",
+      "content_hash": null,
+      "sync_status": "synced"
+    }
+  }
+}

@@ -2,16 +2,19 @@
 # Tune these parameters to control API behavior
 
 writer:
-  model: "claude-sonnet-4-20250514"
-  max_tokens: 16000
+  model: "claude-opus-4-20250514"  # Using Opus for larger context window + quality
+  max_tokens: 32000  # Opus supports larger output
   temperature: 0.3  # Lower = more consistent
 
 reviewer:
-  model: "claude-sonnet-4-20250514"
+  model: "claude-sonnet-4-20250514"  # Sonnet sufficient for review
   max_tokens: 4000
   temperature: 0.2  # Even lower for validation
 
 # Model options:
 # - claude-sonnet-4-20250514 (default, good balance)
-# - claude-opus-4-20250514 (highest quality, slower, more expensive)
+# - claude-opus-4-20250514 (highest quality, larger context, slower, more expensive)
 # - claude-haiku-3-5-20241022 (fastest, cheapest, for simple docs)
+
+# Note: Switched to Opus for processing 36 REVISE documents that failed with Sonnet
+# due to context window limits. Documents range from 10KB to 213KB.

@@ -13,13 +13,13 @@
 - [x] No new errors
 
 ### Specific Feedback
-This rewrite successfully transforms a generic "Edge AI" analysis into Grove-aligned content while preserving all technical rigor and citations. The writer correctly:
+This rewrite successfully transforms a generic edge AI analysis into a Grove-specific validation of the Ratchet thesis. The writer correctly:
 
-- Updated terminology ("Local AI Infrastructure" vs "Edge AI", "distributed AI infrastructure" vs "distributed intelligence")
-- Connected technical findings to Grove's Ratchet Thesis in the conclusion without forcing the connection throughout
-- Maintained academic tone appropriate for a research brief
-- Preserved all quantitative data, benchmarks, and citations exactly
-- Kept honest assessments about limitations (e.g., "could not be verified" for Snapdragon specs)
-- Strengthened the conclusion to support Grove's strategic positioning while remaining factually grounded
+- **Reframed the entire document** around Grove's "models are seeds, architecture is soil" positioning rather than generic "decentralized AI" trends
+- **Fixed terminology** throughout (tokens→credits, etc.) while preserving technical precision
+- **Activated the voice** by removing passive constructions and academic hedging
+- **Connected empirical evidence** to Grove's specific architectural choices at every major section
+- **Preserved technical accuracy** while updating strategic frame
+- **Maintained appropriate uncertainty** about future timelines and technical constraints
 
-The document now serves Grove's strategic positioning while maintaining its value as an independent technical analysis.
+The conclusion particularly effectively ties the technical evidence to Grove's exploration architecture thesis rather than making generic predictions about "the future of AI."

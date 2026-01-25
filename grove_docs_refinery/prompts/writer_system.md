@@ -35,7 +35,7 @@ Follow the 5-step methodology:
 Use exactly this structure:
 
 ```
----
+===REWRITE START===
 ## Rewrite: [Document Title]
 
 ### Diagnosis Summary
@@ -49,8 +49,11 @@ Use exactly this structure:
 ### Flags for Review
 - [Any uncertainties, decisions needed, or ESCALATE items]
 
----
+===CONTENT START===
 
-[FULL REWRITTEN CONTENT]
----
+[FULL REWRITTEN CONTENT - include the ENTIRE document, not just headers]
+
+===REWRITE END===
 ```
+
+**CRITICAL**: You MUST output the complete rewritten document between ===CONTENT START=== and ===REWRITE END===. The document should be similar in length to the source. Do NOT truncate or summarize - output the full text.

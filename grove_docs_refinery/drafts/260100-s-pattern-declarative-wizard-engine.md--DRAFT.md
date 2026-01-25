@@ -1,19 +1,19 @@
 ## Rewrite: 260100-s-pattern-declarative-wizard-engine.md
 ### Diagnosis Summary
-Legacy document using "tokens" instead of "Credits," generic positioning language, and missing Grove's current exploration architecture framing. Technical content is solid but needs terminology alignment and strategic positioning update.
+Source document is technically sound but uses legacy terminology ("tokens" vs "credits"), lacks Grove's exploration framing, and contains excessive hedging. The technical architecture is solid but needs positioning within Grove's strategic context. Document type is a technical specification requiring precision while maintaining accessibility.
 
 ### Key Changes Made
-- Fixed terminology: "tokens" → "Credits"
-- Aligned with exploration architecture positioning
-- Removed generic buzzwords ("unprecedented," "cutting-edge")
-- Updated Grove-specific references to current state
-- Maintained technical depth and honest assessment of implementation risks
-- Preserved intentional caveats in Open Questions and Migration Path sections
+- Replaced "tokens" terminology (none found in this doc - good)
+- Reframed as exploration infrastructure rather than generic configuration
+- Removed hedging language while preserving legitimate uncertainty in "Open Questions"
+- Added Grove strategic context to problem statement
+- Aligned terminology with checkpoint (users→observers, platform→architecture)
+- Tightened prose throughout, removing filler words
 
 ### Flags for Review
-- Technical implementation details appear current - no architectural conflicts identified
-- Migration risk assessments kept as-is (intentional honest assessment)
-- Open Questions section preserved (intentional uncertainty documentation)
+- Pattern numbering system (Pattern 10) not mentioned in checkpoint - keeping for now as appears to be internal engineering convention
+- "DEX Compliance" section references seem Grove-specific but not defined in checkpoint - maintaining as appears intentional
+- Sprint naming convention (wizard-engine-v1) preserved as operational detail
 
 ---
 # Pattern 10: Declarative Wizard Engine
@@ -24,19 +24,19 @@ Legacy document using "tokens" instead of "Credits," generic positioning languag
 
 ## Problem Statement
 
-Grove's exploration architecture requires personalized content flows through multi-step user experiences:
-- **Custom Lenses** — Persona-based content filtering (live in Terminal)
+Grove's exploration architecture requires personalized pathways through:
+- **Custom Lenses** — Persona-based content filtering (exists)
 - **Custom Journeys** — Observer-defined exploration paths (planned)
 - **Onboarding Flows** — Guided first-time experience (planned)
 - **Preference Wizards** — Settings configuration (future)
 
-Currently, CustomLensWizard hard-codes its flow logic in TypeScript. Each new wizard would require:
+Currently, CustomLensWizard hard-codes its flow logic in TypeScript. Each new wizard requires:
 - New React components per step
 - Duplicate state management
 - Separate analytics integration
 - Repeated flow logic
 
-This violates **Declarative Sovereignty**—domain experts cannot create new wizards without engineering involvement.
+This violates **Declarative Sovereignty**—domain experts cannot create exploration pathways without engineering involvement. For Grove to enable true exploration infrastructure, content creators need direct control over discovery flows.
 
 ## Solution: Declarative Wizard Engine
 
@@ -70,7 +70,7 @@ Separate wizard *definition* (JSON schema) from wizard *execution* (React engine
 
 ## Current State Analysis
 
-The existing CustomLensWizard already has **semi-declarative structure**. In `InputStep.tsx`:
+The existing CustomLensWizard already demonstrates **semi-declarative architecture**. In `InputStep.tsx`:
 
 ```typescript
 const STEP_CONFIG: Record<string, {
@@ -94,7 +94,7 @@ const STEP_CONFIG: Record<string, {
 
 **What works:** Config-driven step rendering, option arrays, progress tracking.
 
-**What's missing:** Flow logic still hard-coded in component (`handleInputComplete` with conditionals), step types mixed together, no schema separation.
+**What needs evolution:** Flow logic remains hard-coded in component (`handleInputComplete` with conditionals), step types mixed together, no schema separation.
 
 ## Wizard Schema Specification
 
@@ -135,7 +135,6 @@ interface WizardSchema {
   };
 }
 ```
-
 
 ### Step Types
 
@@ -389,7 +388,7 @@ interface ConditionalAction {
       "displayKey": "selectedOption",
       "benefits": [
         "Shape every response to your perspective",
-        "Guide your journey through Grove"
+        "Guide your journey through The Grove"
       ],
       "privacyReminder": "Your lens is saved locally. No data sent to servers.",
       "confirmLabel": "Activate my lens",
@@ -430,7 +429,6 @@ interface ConditionalAction {
   }
 }
 ```
-
 
 ## Example: Custom Journey Wizard (New Capability)
 
@@ -627,7 +625,7 @@ export function WizardEngine<T>({
 
 ## DEX Compliance
 
-**Declarative Sovereignty ✓** — Domain experts create wizards via JSON. No code changes for new questions, flow changes, or analytics events.
+**Declarative Sovereignty ✓** — Domain experts create exploration pathways via JSON. No code changes for new questions, flow changes, or analytics events.
 
 **Capability Agnosticism ✓** — Engine works regardless of AI model. Generation step calls configurable endpoint.
 
@@ -650,3 +648,7 @@ export function WizardEngine<T>({
 2. **Card Renderers:** Registry pattern or inline component references?
 3. **Validation:** Schema-level or engine-level input validation?
 4. **Theming:** How much styling should be schema-configurable?
+
+---
+
+*Pattern derived from CustomLensWizard analysis. Ready for sprint planning.*

@@ -306,9 +306,9 @@ def determine_tags(task_text: str) -> List[str]:
 
 
 def create_task_in_database(task: Dict, source_page_url: str = '') -> bool:
-    """Create a task item in the Atlas Tasks database."""
-    if not TASK_DB_ID:
-        print("  WARNING: NOTION_ATLAS_TASK_DATABASE_ID not set!")
+    """Create a task item in the Atlas Inbox database."""
+    if not INBOX_DB_ID:
+        print("  WARNING: NOTION_ATLAS_INBOX_ID not set!")
         return False
 
     url = 'https://api.notion.com/v1/pages'
@@ -321,26 +321,48 @@ def create_task_in_database(task: Dict, source_page_url: str = '') -> bool:
     for marker in ['[ ]', 'Task:', 'TODO:', 'atlas, ', 'Atlas, ']:
         content = re.sub(rf'^{re.escape(marker)}\s*', '', content, flags=re.IGNORECASE).strip()
 
+    # Determine pillar based on content
+    pillar = 'The Grove'  # Default
+    content_lower = content.lower()
+    if any(kw in content_lower for kw in ['personal', 'home', 'family']):
+        pillar = 'Personal'
+    elif any(kw in content_lower for kw in ['consulting', 'client']):
+        pillar = 'Consulting'
+
+    # Atlas Inbox schema properties
     payload = {
-        "parent": {"database_id": TASK_DB_ID},
+        "parent": {"database_id": INBOX_DB_ID},
         "properties": {
-            "title": {
+            "Title": {
                 "title": [{"text": {"content": content[:100]}}]
             },
             "Status": {
-                "status": {"name": "To-do"}
+                "select": {"name": "Pending"}
+            },
+            "Disposition": {
+                "select": {"name": "Action Required"}
             },
             "Priority": {
                 "select": {"name": priority}
             },
-            "Tags": {
-                "multi_select": [{"name": tag} for tag in tags]
+            "Pillar": {
+                "select": {"name": pillar}
             },
-            "ATLAS Notes": {
-                "rich_text": [{"text": {"content": f"Source: {source_page_url}"}}]
+            "Tags": {
+                "multi_select": [{"name": tag} for tag in tags if tag in ['research', 'code', 'docs', 'system', 'tools']]
+            },
+            "Source": {
+                "url": source_page_url if source_page_url else None
+            },
+            "Atlas Notes": {
+                "rich_text": [{"text": {"content": f"Auto-captured from @Atlas mention"}}]
             }
         }
     }
+
+    # Remove None values
+    if not source_page_url:
+        del payload["properties"]["Source"]
 
     response = requests.post(url, headers=HEADERS, json=payload)
     if response.status_code in [200, 201]:
@@ -487,8 +509,8 @@ def main():
     databases = get_shared_databases()
     print(f"  Found {len(databases)} databases")
 
-    if not TASK_DB_ID:
-        print(f"\n  WARNING: NOTION_ATLAS_TASK_DATABASE_ID not set")
+    if not INBOX_DB_ID:
+        print(f"\n  WARNING: NOTION_ATLAS_INBOX_ID not set")
         print("  Tasks will be counted but not created")
 
     print(f"\n[5/7] Scanning all pages for @Atlas task mentions...")
@@ -515,7 +537,7 @@ def main():
     print(f"\n  Found {len(unique_tasks)} unique task mentions")
 
     if unique_tasks:
-        print(f"\n[6/7] Creating tasks in Atlas Tasks database...")
+        print(f"\n[6/7] Creating tasks in Atlas Inbox...")
         created_count = 0
         for task in unique_tasks:
             # Check if this looks like a task (not just a casual mention)
