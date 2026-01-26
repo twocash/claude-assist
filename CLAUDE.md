@@ -30,6 +30,16 @@ All content flows into one of four domains:
 
 ---
 
+## Multi-Machine Identity
+
+Atlas runs on multiple machines. When logging to the Feed, include the machine name:
+- **Atlas [laptop]** - Jim's laptop (Windows, C:\GitHub\claude-assist)
+- **Atlas [grove-node-1]** - Grove dev machine (Windows, C:\GitHub\claude-assist)
+
+This prevents confusion when Feed entries interleave from different sessions.
+
+---
+
 ## Session Startup
 
 1. **Read the Feed** - Check for new entries from Jim since last session
