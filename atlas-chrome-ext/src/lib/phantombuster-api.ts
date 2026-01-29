@@ -106,21 +106,50 @@ export async function getContainerStatus(containerId: string): Promise<PbContain
 }
 
 /**
- * Fetch results from S3 for an agent
+ * Robust Result Fetching (No hardcoded folders)
+ * 1. Asks PB where the results are for this specific agent
+ * 2. Constructs the S3 URL dynamically
  */
 export async function fetchAgentResults(agentId: string): Promise<unknown[]> {
-  const s3Folder = PB_S3_FOLDERS[agentId]
-  if (!s3Folder) {
-    throw new Error(`Unknown agent ID: ${agentId}`)
-  }
+  try {
+    // Step 1: Get the agent's metadata from API
+    const config = await fetchAgentConfig(agentId)
 
-  const url = `${PB_S3_BASE}/${s3Folder}/result.json`
-  const resp = await fetch(url)
-  if (!resp.ok) {
-    throw new Error(`Failed to fetch results: ${resp.status}`)
-  }
+    // Step 2: Extract dynamic folder paths from the API response
+    const orgFolder = config.orgS3Folder || 'fPnqqqrVtDA' // Fallback to known org folder
+    const agentFolder = config.s3Folder
 
-  return resp.json()
+    if (!agentFolder) {
+      console.log(`[PB] No S3 folder for agent ${agentId}`)
+      // Fallback: try hardcoded mapping if API doesn't return folder
+      const hardcodedFolder = PB_S3_FOLDERS[agentId]
+      if (hardcodedFolder) {
+        const url = `${PB_S3_BASE}/${hardcodedFolder}/result.json`
+        const resp = await fetch(url)
+        if (resp.ok) return resp.json()
+      }
+      return []
+    }
+
+    // Step 3: Construct the URL dynamically
+    const url = `https://phantombuster.s3.amazonaws.com/${orgFolder}/${agentFolder}/result.json`
+    console.log(`[PB] Fetching results from: ${url}`)
+
+    const resp = await fetch(url)
+    if (!resp.ok) {
+      // 404 = agent hasn't run yet, not an error
+      if (resp.status === 404) {
+        console.log(`[PB] No results yet for agent ${agentId}`)
+        return []
+      }
+      throw new Error(`Failed to fetch S3 results: ${resp.status}`)
+    }
+
+    return resp.json()
+  } catch (e) {
+    console.error(`[PB] fetchAgentResults error for ${agentId}:`, e)
+    return []
+  }
 }
 
 /**

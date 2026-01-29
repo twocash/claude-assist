@@ -250,6 +250,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true
   }
 
+  if (message.name === "GET_PHANTOM_STATUS") {
+    const { containerId } = message.body || {}
+    ;(async () => {
+      try {
+        const status = await getContainerStatus(containerId)
+        sendResponse({ ok: true, ...status })
+      } catch (error) {
+        sendResponse({ ok: false, error: String(error) })
+      }
+    })()
+    return true
+  }
+
   return false
 })
 

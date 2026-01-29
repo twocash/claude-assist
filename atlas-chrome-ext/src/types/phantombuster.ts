@@ -10,7 +10,8 @@ export interface PbAgentConfig {
   launchType: string
   lastEndMessage?: string
   lastEndStatus?: string
-  s3Folder?: string
+  s3Folder?: string             // Agent-specific folder (dynamic)
+  orgS3Folder?: string          // Organization folder (dynamic)
 }
 
 export interface PbLaunchResult {

@@ -7,7 +7,8 @@
       "Bash(powershell -Command \"Remove-Item -Path ''C:\\\\Users\\\\jimca\\\\Desktop\\\\Atlas-NavRail-TEST'' -Recurse -Force -ErrorAction SilentlyContinue; Copy-Item -Path ''C:\\\\github\\\\claude-assist\\\\atlas-chrome-ext\\\\build\\\\chrome-mv3-prod'' -Destination ''C:\\\\Users\\\\jimca\\\\Desktop\\\\Atlas-NavRail-TEST'' -Recurse -Force\")",
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nPhase 2: Unified Inbox + Tiered Intelligence Routing\n\nAdded Unified Inbox:\n- New top-priority view in NavRail \\(inbox icon\\)\n- Aggregates comments, DMs, mentions in one place\n- Split view: list mode → select item → draft reply\n- Reuses AdHocReply component for drafting\n- Mock data for now \\(Phase 3 will connect to scraper\\)\n\nImplemented Tiered Routing:\n- TaskTier.FAST: Haiku/Gemini Flash \\($0.25/MTok\\) for classification\n- TaskTier.SMART: Sonnet/GPT-4 \\($3/MTok\\) for reply drafting\n- Automatic cost optimization based on task type\n- Falls back to user''s model selection if no tier specified\n\nNavRail enhancements:\n- Badge count display \\(shows number, not just dot\\)\n- Inbox badge shows count of unread items\n- Outreach badge shows green pulse when scraper running\n\nNext: Phase 3 will connect Inbox to LinkedIn notification scraper\n\nBased on Gemini''s Phase 2 recommendations\n\nCo-Authored-By: Claude Sonnet 4.5 \\(1M context\\) <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

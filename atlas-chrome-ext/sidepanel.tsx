@@ -19,6 +19,7 @@ import { ApiKeySetup } from "~sidepanel/components/ApiKeySetup"
 import { EnrichmentImport } from "~sidepanel/components/EnrichmentImport"
 import { DebugLogViewer } from "~sidepanel/components/DebugLogViewer"
 import { Inbox } from "~sidepanel/components/Inbox"
+import { DataView } from "~sidepanel/components/DataView"
 
 // Simple Error Boundary
 class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: string }> {
@@ -143,6 +144,11 @@ function SidePanelInner() {
             </div>
           )}
 
+          {/* VIEW: DATA (Passive Tasks) */}
+          {view === "data" && (
+            <DataView />
+          )}
+
           {/* VIEW: SETTINGS */}
           {view === "settings" && (
             <div className="h-full overflow-y-auto p-4 space-y-6">
@@ -152,12 +158,11 @@ function SidePanelInner() {
                 <div className="mt-2"><ApiKeySetup /></div>
               </section>
               <section className="pt-4 border-t border-gray-100">
-                <h2 className="text-sm font-bold text-gray-900 mb-3">Data Enrichment</h2>
-                <EnrichmentImport onComplete={() => { }} />
-              </section>
-              <section className="pt-4 border-t border-gray-100">
-                <h2 className="text-sm font-bold text-gray-900 mb-3">Logs</h2>
+                <h2 className="text-sm font-bold text-gray-900 mb-3">Debug Logs</h2>
                 <div className="h-64 border rounded bg-gray-50 overflow-hidden"><DebugLogViewer /></div>
+                <div className="mt-2 text-[10px] text-gray-400">
+                  Shows sync progress, phantom fetches, Notion updates, and errors.
+                </div>
               </section>
             </div>
           )}
