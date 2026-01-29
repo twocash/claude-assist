@@ -9,6 +9,13 @@ export interface Lead {
   segment: Segment
   status: LeadStatus
   result?: LeadResult
+  selected?: boolean       // For review mode (Green Room)
+  notionPageId?: string    // For syncing back to Notion after processing
+  notionData?: {           // Rich context from Notion
+    sector?: string
+    groveAlignment?: string
+    priority?: string
+  }
 }
 
 export interface LeadResult {

@@ -2,9 +2,10 @@ import { useState } from "react"
 
 interface HeaderProps {
   connected: boolean
+  onSyncComplete?: (commentsNeedingReply: any[]) => void
 }
 
-export function Header({ connected }: HeaderProps) {
+export function Header({ connected, onSyncComplete }: HeaderProps) {
   const [isSyncing, setIsSyncing] = useState(false)
 
   const handleGlobalSync = async () => {
@@ -12,6 +13,11 @@ export function Header({ connected }: HeaderProps) {
     try {
       const response = await chrome.runtime.sendMessage({ name: "RUN_FULL_SYNC" })
       console.log("Global sync result:", response)
+
+      // Notify parent to update comment state
+      if (response?.ok && response.result?.commentsNeedingReply && onSyncComplete) {
+        onSyncComplete(response.result.commentsNeedingReply)
+      }
     } catch (e) {
       console.error("Sync failed:", e)
     } finally {

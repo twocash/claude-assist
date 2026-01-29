@@ -77,6 +77,7 @@ Atlas is a cognitive co-pilot that works *with* how Jim's brain operates—not a
 - Grove docs refinery produces polished content
 - LinkedIn engagement tracking captures high-value contacts
 - Editorial learning loop improves output over time
+- Context clue analysis can auto-classify most sparks (see `SPARKS.md`)
 
 **What creates friction:**
 - Async processing requires hunting in Notion for results
@@ -84,10 +85,36 @@ Atlas is a cognitive co-pilot that works *with* how Jim's brain operates—not a
 - Blocked items (awaiting Jim's feedback) get lost
 - Session handoffs lose context despite Feed logging
 - Multiple entry points (Notion, CLI, comments) fragment attention
+- **Clarification happens too late**—by the time Atlas processes, Jim's context is gone
+
+**The Core Insight:**
+
+Sparks need interpretation *while the thought is fresh*. Pure async can't solve this. The architecture needs a fast clarification loop (Telegram or Extension chat) before routing to the async processing layer.
+
+```
+Spark → [Quick Clarify: 10 sec] → Interpreted Task → [Async Processing] → Done
+              ↑                          ↓
+         Telegram/Ext              Notion + Persistent Agent
+```
 
 ---
 
 ## Strategic Direction
+
+### The Clarification Layer (Critical Path)
+
+Before the browser extension can be the command center, Atlas needs a fast clarification channel. When Jim shares a spark, he needs to refine intent *in the moment*—not hours later when checking Notion.
+
+**Telegram as clarification channel:**
+- Share link → Atlas analyzes → "Grove research or Atlas experiment?" → Jim taps reply
+- Mobile-first means clarification happens anywhere
+- Conversation history provides context for future sparks
+- Bridge to Notion: once clarified, task lands in the right place
+
+**Why Telegram before Extension chat:**
+- Works on mobile (extension is desktop-only)
+- Lower implementation complexity
+- Proves the clarification model before building into extension
 
 ### The Browser Extension Unlock
 
@@ -105,8 +132,17 @@ The existing Chrome extension already proves the model: real-time side panel tha
 
 **Phase 3: Conversation Layer**
 - Chat interface to Atlas in the side panel
-- Replace async Feed posts with real-time dialogue
-- Telegram/mobile bridge for on-the-go
+- Desktop equivalent of Telegram clarification
+- Full context: current page, recent sparks, queue state
+
+### Persistent Agent (grove-node-1)
+
+A Claude Code instance running persistently to act as Atlas's "hands":
+- Executes longer tasks without session timeouts
+- Runs monitoring loops (inbox scan, engagement tracking)
+- Picks up clarified tasks from Notion queue
+- Operates autonomously while Jim is away
+- Reports back via Telegram or Feed
 
 ---
 

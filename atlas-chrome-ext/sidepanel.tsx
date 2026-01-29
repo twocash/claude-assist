@@ -20,6 +20,8 @@ import { EnrichmentImport } from "~sidepanel/components/EnrichmentImport"
 import { DebugLogViewer } from "~sidepanel/components/DebugLogViewer"
 import { Inbox } from "~sidepanel/components/Inbox"
 import { DataView } from "~sidepanel/components/DataView"
+import { OutreachView } from "~sidepanel/components/OutreachView"
+import { useCommentsState } from "~src/lib/comments-hooks"
 
 // Simple Error Boundary
 class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: string }> {
@@ -54,9 +56,14 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
 
 function SidePanelInner() {
   const [queue] = useQueueState()
+  const [commentsState, { replaceAllComments }] = useCommentsState()
   const [view, setView] = useState<ViewId>("outreach")
   const portRef = useRef<chrome.runtime.Port | null>(null)
   const didAutoSwitch = useRef(false)
+
+  const handleSyncComplete = (comments: any[]) => {
+    replaceAllComments(comments)
+  }
 
   // 1. Smart Context Switching (The "AI" feel)
   useEffect(() => {
@@ -95,15 +102,21 @@ function SidePanelInner() {
   }, [])
 
   const isRunning = queue?.status === "running"
+  const inboxCount = commentsState.comments.filter((c) => c.status === 'needs_reply' && !c.hiddenLocally).length
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
       {/* LEFT RAIL */}
-      <NavRail activeView={view} onSelect={setView} hasActiveTask={isRunning} />
+      <NavRail
+        activeView={view}
+        onSelect={setView}
+        hasActiveTask={isRunning}
+        inboxCount={inboxCount}
+      />
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-w-0 bg-white">
-        <Header connected={!!queue} />
+        <Header connected={!!queue} onSyncComplete={handleSyncComplete} />
 
         <div className="flex-1 overflow-hidden relative flex flex-col">
 
@@ -112,22 +125,9 @@ function SidePanelInner() {
             <Inbox />
           )}
 
-          {/* VIEW: OUTREACH */}
+          {/* VIEW: OUTREACH (Notion-integrated segments) */}
           {view === "outreach" && (
-            <div className="h-full flex flex-col">
-              {/* Show Import only if no queue exists */}
-              {!queue ? (
-                <CsvImport onImported={() => { }} />
-              ) : (
-                <>
-                  <ProgressBar queue={queue} />
-                  {queue.status === "completed" && <RunSummary queue={queue} />}
-                  <TaskQueue queue={queue} />
-                  <Controls queue={queue} />
-                  <ExportResults queue={queue} />
-                </>
-              )}
-            </div>
+            <OutreachView />
           )}
 
           {/* VIEW: STUDIO (Merged Posts + Reply) */}

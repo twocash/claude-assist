@@ -20,7 +20,23 @@
 
 ## Workstream 1: Atlas Core (Triage & Execution)
 
-### P1-CORE-001: Extension Dashboard Tab
+### P1-CORE-001: Telegram Clarification Bot
+**Problem:** By the time async triage completes, Jim's context about why he shared a spark is gone. Clarification needs to happen in the moment.  
+**Hypothesis:** A Telegram bot that receives sparks, analyzes with context clues (see SPARKS.md), and asks focused clarification questions will capture intent while thought is fresh.  
+**Effort:** M  
+**Acceptance criteria:**
+- [ ] Send link/text to Atlas Telegram bot
+- [ ] Bot analyzes: URL patterns, keywords, session context
+- [ ] If confidence < 80%: asks A/B/C clarification ("Grove research or Atlas experiment?")
+- [ ] If confidence ≥ 80%: confirms classification ("Filing as Grove research—correct?")
+- [ ] Jim's reply (or ✓) triggers Notion task creation
+- [ ] Conversation history maintained for context continuity
+
+**Dependencies:** Telegram Bot API, Notion API integration
+
+---
+
+### P1-CORE-002: Extension Dashboard Tab
 **Problem:** No visibility into Atlas queue state without running scripts or opening Notion.  
 **Hypothesis:** A "Dashboard" tab in the extension showing inbox count, pending items, and blocked work will eliminate 80% of Notion round-trips.  
 **Effort:** M  
@@ -34,7 +50,7 @@
 
 ---
 
-### P1-CORE-002: Quick Capture from Any Page
+### P1-CORE-003: Quick Capture from Any Page
 **Problem:** Capturing to Atlas requires navigating to Notion and creating an inbox item manually.  
 **Hypothesis:** A capture button in the extension that grabs page URL + selected text + pillar dropdown will reduce capture friction to < 5 seconds.  
 **Effort:** S  
@@ -49,7 +65,7 @@
 
 ---
 
-### P1-CORE-003: Blocked Items Alert
+### P1-CORE-004: Blocked Items Alert
 **Problem:** Items waiting on Jim's feedback get buried and stall for days.  
 **Hypothesis:** Surfacing "blocked on you" items with age indicator will reduce average blocked time from days to hours.  
 **Effort:** S  
@@ -63,7 +79,7 @@
 
 ---
 
-### P2-CORE-004: Inline Triage Actions
+### P2-CORE-005: Inline Triage Actions
 **Problem:** Triage decisions require opening Notion, finding the item, updating properties.  
 **Hypothesis:** Quick-action buttons in extension (Approve, Defer, Delegate, Archive) will cut triage time by 70%.  
 **Effort:** M  
@@ -77,7 +93,7 @@
 
 ---
 
-### P2-CORE-005: Session Handoff Summary
+### P2-CORE-006: Session Handoff Summary
 **Problem:** Starting a new session requires reading Feed entries to understand state.  
 **Hypothesis:** Auto-generated "last session summary" on startup reduces context recovery time.  
 **Effort:** S  
@@ -87,11 +103,26 @@
 - [ ] Extension dashboard shows "Last Session" card
 - [ ] Includes link to full Feed entry
 
-**Dependencies:** P1-CORE-001
+**Dependencies:** P1-CORE-002
 
 ---
 
-### P3-CORE-006: Chat Interface in Extension
+### P2-CORE-007: Persistent Agent Setup (grove-node-1)
+**Problem:** Long-running tasks timeout, monitoring requires manual script runs, Atlas can't work while Jim is away.  
+**Hypothesis:** A persistent Claude Code instance on grove-node-1 can execute queued tasks, run loops, and operate autonomously.  
+**Effort:** M  
+**Acceptance criteria:**
+- [ ] Claude Code session running persistently on grove-node-1
+- [ ] Picks up tasks from Notion queue (Status = Ready)
+- [ ] Executes and updates status in Notion
+- [ ] Reports completion via Telegram notification
+- [ ] Handles: inbox scanning, content generation, research tasks
+
+**Dependencies:** P1-CORE-001 (Telegram for notifications)
+
+---
+
+### P3-CORE-007: Chat Interface in Extension
 **Problem:** Current interaction model is async (Notion comments) or CLI.  
 **Hypothesis:** Real-time chat in extension side panel creates conversational flow without leaving work context.  
 **Effort:** L  
@@ -263,7 +294,6 @@
 - Family calendar integration
 
 **Work/Grove:**
-- Telegram bot for mobile capture
 - Voice capture via Whisper transcription
 - Calendar integration for deadline surfacing
 - Email triage with Atlas logic
@@ -272,19 +302,34 @@
 - Notion bi-directional sync (real-time)
 - AI-suggested triage (Atlas proposes, Jim confirms)
 - Offline mode for extension
+- Telegram → Extension handoff (start on mobile, continue on desktop)
 
 ---
 
 ## Sprint Planning View
 
-### Recommended First Sprint: "Atlas in the Browser"
+### Recommended First Sprint: "The Clarification Loop"
 
-**Goal:** Prove the extension-as-command-center model across all pillars
+**Goal:** Prove the real-time clarification model that captures intent while thought is fresh
 
 **Scope:**
-1. P1-CORE-001: Extension Dashboard Tab (M)
-2. P1-CORE-002: Quick Capture from Any Page (S)
-3. P1-CORE-003: Blocked Items Alert (S)
+1. P1-CORE-001: Telegram Clarification Bot (M)
+2. Signal analysis from SPARKS.md integrated
+
+**Total effort:** ~3-4 days
+
+**Success metric:** Jim can share a link to Telegram, get a clarification question in < 30 seconds, reply, and have a properly-classified Notion task created—all from mobile.
+
+---
+
+### Recommended Second Sprint: "Atlas in the Browser"
+
+**Goal:** Desktop visibility and capture without leaving work context
+
+**Scope:**
+1. P1-CORE-002: Extension Dashboard Tab (M)
+2. P1-CORE-003: Quick Capture from Any Page (S)
+3. P1-CORE-004: Blocked Items Alert (S)
 
 **Total effort:** ~3-4 days
 
@@ -292,7 +337,7 @@
 
 ---
 
-### Recommended Second Sprint: "Life Projects"
+### Recommended Third Sprint: "Life Projects"
 
 **Goal:** Prove Atlas works for garage build and other non-Grove projects
 
@@ -312,6 +357,10 @@
 | Date | Change |
 |------|--------|
 | 2026-01-29 | Initial backlog created from product discovery |
+| 2026-01-29 | Added Life Projects workstream (P1-LIFE-001 through P2-LIFE-004) |
+| 2026-01-29 | Elevated Telegram to P1-CORE-001 as clarification layer |
+| 2026-01-29 | Added P2-CORE-007: Persistent Agent Setup |
+| 2026-01-29 | Reordered sprints: Clarification Loop → Browser → Life Projects |
 
 ---
 

@@ -816,6 +816,82 @@ export async function enrichContactsFromCSV(csvLeads: Array<Record<string, strin
   return created + updated
 }
 
+// --- Outreach Notion Integration ---
+
+/**
+ * Get pending contact counts for each segment
+ */
+export async function getSegmentPendingCounts(): Promise<Record<string, number>> {
+  const segments = [
+    'Saved - Academic',
+    'Saved - Technical',
+    'Saved - Enterprise',
+    'Saved - Influencer',
+  ]
+
+  const counts: Record<string, number> = {}
+
+  for (const segment of segments) {
+    try {
+      const contacts = await queryDatabase(NOTION_DBS.CONTACTS, {
+        and: [
+          { property: 'Sales Nav List Status', select: { equals: segment } },
+          { property: 'Connection Status', select: { equals: 'Not Connected' } },
+        ],
+      })
+      counts[segment] = contacts.length
+    } catch (e) {
+      console.error(`[Outreach] Failed to count ${segment}:`, e)
+      counts[segment] = 0
+    }
+  }
+
+  return counts
+}
+
+/**
+ * Fetch contacts for a specific segment that need processing
+ */
+export async function fetchContactsBySegment(salesNavStatus: string): Promise<NotionPage[]> {
+  try {
+    return await queryDatabase(NOTION_DBS.CONTACTS, {
+      and: [
+        { property: 'Sales Nav List Status', select: { equals: salesNavStatus } },
+        { property: 'Connection Status', select: { equals: 'Not Connected' } },
+      ],
+    })
+  } catch (e) {
+    console.error(`[Outreach] Failed to fetch ${salesNavStatus}:`, e)
+    return []
+  }
+}
+
+/**
+ * Mark contacts as "Following" after successful Save+Follow automation
+ */
+export async function markContactsAsFollowing(contactPageIds: string[]): Promise<number> {
+  let updated = 0
+  const today = new Date().toISOString().slice(0, 10)
+
+  for (const pageId of contactPageIds) {
+    try {
+      await updatePage(pageId, {
+        'Connection Status': select('Following'),
+        'Last Active': date(today),
+      })
+      updated++
+      await debugLog('orchestrator', `✓ Marked ${pageId} as Following in Notion`)
+      await delay(300) // Rate limit
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      await debugLog('orchestrator', `Failed to update ${pageId}: ${msg}`)
+    }
+  }
+
+  await debugLog('orchestrator', `Updated ${updated}/${contactPageIds.length} contacts in Notion`)
+  return updated
+}
+
 // --- Helpers ---
 
 function delay(ms: number): Promise<void> {

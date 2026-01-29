@@ -164,39 +164,101 @@ Grove docs refinery learns from Jim's edits. Where should learnings be stored?
 
 ---
 
-## Pending Decisions
+## DEC-006: Telegram as Primary Clarification Channel
 
-### PENDING: Chat Backend Architecture
+**Date:** 2026-01-29  
+**Status:** Accepted
 
-**Context:** P3-CORE-006 proposes chat interface in extension. How should messages reach Atlas?
+**Context:**  
+Sparks (raw input) need interpretation. Pure async processing means clarification happens after Jim's context has faded. Need a fast channel to capture intent while thought is fresh.
 
-**Options to evaluate:**
-1. **Anthropic API direct** - Extension calls Claude API with Atlas context
-2. **Local Claude Code** - Extension triggers local Claude Code session
-3. **Server relay** - Messages go to server, server calls Claude
-4. **Notion-mediated** - Messages post to Feed, processed async
+**Options considered:**
+1. **Notion comments** - Async, Jim checks later (current state)
+2. **Extension chat** - Real-time but desktop-only
+3. **Telegram bot** - Mobile-first, instant, conversational
+4. **SMS/iMessage** - Universal but limited interaction model
+5. **Email** - Too slow, wrong mental model
 
-**Considerations:**
-- API costs for direct calls
-- Context injection complexity
-- Real-time vs async expectations
-- Mobile/Telegram parity
+**Decision:** Telegram as primary clarification channel, with Extension chat as desktop equivalent later
 
-**Status:** Needs discussion before P3-CORE-006
+**Rationale:**
+- Mobile-first: Jim can clarify anywhere, not just at desktop
+- Instant: Notification appears while spark context is fresh
+- Conversational: Natural back-and-forth for nuanced clarification
+- Lower implementation complexity than Extension chat
+- Telegram bot API is well-documented and reliable
+- Proves the model before investing in Extension integration
+
+**Consequences:**
+- Requires Jim to have Telegram installed and notifications enabled
+- Two interfaces to maintain eventually (Telegram + Extension)
+- Telegram history becomes part of the record (alongside Notion)
+- Need to bridge Telegram conversations to Notion for canonical storage
 
 ---
 
-### PENDING: Mobile Strategy
+## DEC-007: SPARKS.md as Interpretation Guide
 
-**Context:** Extension only works on desktop. How to handle mobile capture/visibility?
+**Date:** 2026-01-29  
+**Status:** Accepted
+
+**Context:**  
+Atlas needs a documented framework for interpreting Jim's input. This enables consistent behavior across sessions and clarifies the "why" behind classification decisions.
+
+**Options considered:**
+1. **Hardcoded rules** - Logic embedded in code
+2. **Notion database** - Queryable but heavyweight
+3. **Markdown document** - Human-readable, version-controlled, injected into prompts
+
+**Decision:** `SPARKS.md` as the canonical interpretation guide
+
+**Rationale:**
+- Human-readable: Jim can review and refine the logic
+- Version-controlled: Changes tracked in git
+- Prompt-injectable: Can be included in Claude context
+- Living document: Updates as patterns emerge from feedback loop
+- Complements Atlas Memory (which stores specific corrections)
+
+**Consequences:**
+- Must keep SPARKS.md updated as new patterns emerge
+- Classification logic lives in docs, not code (may need sync)
+- Should be uploaded to Claude project knowledge for persistence
+
+---
+
+## Pending Decisions
+
+### PENDING: Persistent Agent Architecture
+
+**Context:** Want a Claude Code instance on grove-node-1 running persistently to execute queued tasks.
 
 **Options to evaluate:**
-1. **Telegram bot** - Conversational interface
-2. **PWA** - Mobile web app
-3. **Notion mobile** - Accept Notion app as mobile interface
-4. **iOS Shortcuts** - Quick capture via Shortcuts app
+1. **Screen/tmux session** - Simple, Claude Code in background
+2. **Systemd service** - More robust, auto-restart
+3. **Docker container** - Isolated, reproducible
+4. **Scheduled task loop** - Windows Task Scheduler triggers periodic runs
 
-**Status:** Parking lot until desktop experience is solid
+**Considerations:**
+- How to handle session timeouts/reconnects
+- How to monitor health and restart on failure
+- How to queue and prioritize tasks
+- Cost implications of persistent API usage
+
+**Status:** Needs investigation before P2-CORE-007
+
+---
+
+### PENDING: Telegram ↔ Notion Bridging
+
+**Context:** Telegram conversations need to sync to Notion for canonical record.
+
+**Options to evaluate:**
+1. **Real-time sync** - Every message creates Notion entry
+2. **Batch sync** - Periodic dump of conversation to Feed
+3. **Task-only sync** - Only clarified tasks land in Notion, conversation stays in Telegram
+4. **Hybrid** - Tasks to Inbox, conversation summary to Feed
+
+**Status:** Decide during P1-CORE-001 implementation
 
 ---
 
@@ -205,6 +267,8 @@ Grove docs refinery learns from Jim's edits. Where should learnings be stored?
 | Date | Decision | Status |
 |------|----------|--------|
 | 2026-01-29 | DEC-001 through DEC-005 documented | Accepted |
+| 2026-01-29 | DEC-006: Telegram as clarification channel | Accepted |
+| 2026-01-29 | DEC-007: SPARKS.md as interpretation guide | Accepted |
 
 ---
 

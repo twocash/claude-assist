@@ -18,6 +18,9 @@ import {
   markEngagementReplied,
   saveDraft,
   enrichContactsFromCSV,
+  getSegmentPendingCounts,
+  fetchContactsBySegment,
+  markContactsAsFollowing,
 } from "~src/lib/sync-engine"
 
 const storage = new Storage({ area: "local" })
@@ -256,6 +259,65 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       try {
         const status = await getContainerStatus(containerId)
         sendResponse({ ok: true, ...status })
+      } catch (error) {
+        sendResponse({ ok: false, error: String(error) })
+      }
+    })()
+    return true
+  }
+
+  // --- Outreach Notion Integration ---
+
+  if (message.name === "GET_SEGMENT_COUNTS") {
+    ;(async () => {
+      try {
+        const counts = await getSegmentPendingCounts()
+        sendResponse({ ok: true, counts })
+      } catch (error) {
+        sendResponse({ ok: false, error: String(error) })
+      }
+    })()
+    return true
+  }
+
+  if (message.name === "FETCH_SEGMENT_CONTACTS") {
+    const { salesNavStatus } = message.body || {}
+    ;(async () => {
+      try {
+        const contacts = await fetchContactsBySegment(salesNavStatus)
+        sendResponse({ ok: true, contacts })
+      } catch (error) {
+        sendResponse({ ok: false, error: String(error) })
+      }
+    })()
+    return true
+  }
+
+  if (message.name === "LOAD_QUEUE_FROM_NOTION") {
+    const { leads, segment } = message.body || {}
+    ;(async () => {
+      try {
+        await storage.set(STORAGE_KEYS.QUEUE_STATE, {
+          status: "idle",
+          leads,
+          current: 0,
+          activeTabId: null,
+          lastActionTimestamp: 0,
+        })
+        sendResponse({ ok: true })
+      } catch (error) {
+        sendResponse({ ok: false, error: String(error) })
+      }
+    })()
+    return true
+  }
+
+  if (message.name === "UPDATE_PROCESSED_CONTACTS") {
+    const { contactPageIds } = message.body || {}
+    ;(async () => {
+      try {
+        const updated = await markContactsAsFollowing(contactPageIds || [])
+        sendResponse({ ok: true, updated })
       } catch (error) {
         sendResponse({ ok: false, error: String(error) })
       }
