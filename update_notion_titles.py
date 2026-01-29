@@ -14,7 +14,7 @@ with open('standardized_repos.json', 'r', encoding='utf-8') as f:
 entries = data['entries']
 
 # Initialize Notion client
-NOTION_KEY = os.environ.get('NOTION_API_KEY', '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')
+NOTION_KEY = os.environ.get('NOTION_API_KEY', ''')
 notion = Client(auth=NOTION_KEY)
 DB_ID = 'efbdb5df36ed475eaf7ab28b25711c0c'
 

@@ -3,7 +3,7 @@ import os
 
 # Set the API key in the environment
 env = os.environ.copy()
-env['NOTION_API_KEY'] = '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'
+env['NOTION_API_KEY'] = '''
 
 # Create scheduled task using schtasks via python
 command = '''

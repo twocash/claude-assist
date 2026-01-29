@@ -28,7 +28,7 @@ load_dotenv()
 
 # --- Configuration ---
 NOTION_KEY = os.environ.get('NOTION_API_KEY', '')
-PB_API_KEY = os.environ.get('PHANTOMBUSTER_API_KEY', 'QrI1HO6io02CAyx5C4bqYl6v3lJkgwg10iJkpaE4ynw')
+PB_API_KEY = os.environ.get('PHANTOMBUSTER_API_KEY', ''')
 
 # Notion database IDs
 CONTACTS_DB = '08b9f73264b24e4b82d4c842f5a11cc8'

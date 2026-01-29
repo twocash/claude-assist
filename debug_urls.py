@@ -4,7 +4,7 @@ import json
 import os
 import requests
 
-NOTION_KEY = os.environ.get('NOTION_API_KEY', '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')
+NOTION_KEY = os.environ.get('NOTION_API_KEY', ''')
 DB_ID = 'efbdb5df36ed475eaf7ab28b25711c0c'
 
 HEADERS = {

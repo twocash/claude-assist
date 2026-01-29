@@ -11,7 +11,7 @@ from datetime import datetime
 
 import requests
 
-NOTION_KEY = os.environ.get('NOTION_API_KEY', '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')
+NOTION_KEY = os.environ.get('NOTION_API_KEY', ''')
 INVENTORY_DB_ID = '973d0191d4554f4f8aa218555ed01f67'  # Database ID (not data source)
 
 HEADERS = {
