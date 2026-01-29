@@ -1,18 +1,34 @@
 import React from "react"
 
-export type ViewId = "outreach" | "studio" | "settings"
+export type ViewId = "inbox" | "outreach" | "studio" | "settings"
 
 interface NavRailProps {
   activeView: ViewId
   onSelect: (view: ViewId) => void
   hasActiveTask: boolean
+  inboxCount?: number
 }
 
-export function NavRail({ activeView, onSelect, hasActiveTask }: NavRailProps) {
+export function NavRail({ activeView, onSelect, hasActiveTask, inboxCount = 3 }: NavRailProps) {
   return (
     <div className="w-14 flex flex-col items-center py-4 bg-gray-50 border-r border-gray-200 gap-6 flex-shrink-0">
 
-      {/* 1. Outreach (The "Work" Mode) */}
+      {/* 1. Inbox (Top Priority) */}
+      <NavButton
+        id="inbox"
+        label="Inbox"
+        active={activeView === "inbox"}
+        onClick={() => onSelect("inbox")}
+        badge={inboxCount > 0}
+        badgeCount={inboxCount}
+      >
+        {/* Inbox Icon */}
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        </svg>
+      </NavButton>
+
+      {/* 2. Outreach (The "Work" Mode) */}
       <NavButton
         id="outreach"
         label="Outreach"
@@ -26,7 +42,7 @@ export function NavRail({ activeView, onSelect, hasActiveTask }: NavRailProps) {
         </svg>
       </NavButton>
 
-      {/* 2. Studio (The "Creative" Mode) */}
+{/* 3. Studio (The "Creative" Mode) */}
       <NavButton
         id="studio"
         label="Studio"
@@ -39,7 +55,7 @@ export function NavRail({ activeView, onSelect, hasActiveTask }: NavRailProps) {
         </svg>
       </NavButton>
 
-      {/* 3. Settings (Bottom Config) */}
+      {/* 4. Settings (Bottom Config) */}
       <div className="mt-auto">
         <NavButton
           id="settings"
@@ -57,7 +73,17 @@ export function NavRail({ activeView, onSelect, hasActiveTask }: NavRailProps) {
   )
 }
 
-function NavButton({ id, label, active, onClick, children, badge }: any) {
+interface NavButtonProps {
+  id: string
+  label: string
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+  badge?: boolean
+  badgeCount?: number
+}
+
+function NavButton({ id, label, active, onClick, children, badge, badgeCount }: NavButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -71,9 +97,17 @@ function NavButton({ id, label, active, onClick, children, badge }: any) {
       {children}
       {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full -ml-2" />}
       {badge && (
-        <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-        </span>
+        <>
+          {badgeCount && badgeCount > 0 ? (
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-blue-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">
+              {badgeCount > 99 ? '99+' : badgeCount}
+            </span>
+          ) : (
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            </span>
+          )}
+        </>
       )}
     </button>
   )

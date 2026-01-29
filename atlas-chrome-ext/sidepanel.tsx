@@ -18,6 +18,7 @@ import { ModelSelector } from "~sidepanel/components/ModelSelector"
 import { ApiKeySetup } from "~sidepanel/components/ApiKeySetup"
 import { EnrichmentImport } from "~sidepanel/components/EnrichmentImport"
 import { DebugLogViewer } from "~sidepanel/components/DebugLogViewer"
+import { Inbox } from "~sidepanel/components/Inbox"
 
 // Simple Error Boundary
 class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: string }> {
@@ -104,6 +105,11 @@ function SidePanelInner() {
         <Header connected={!!queue} />
 
         <div className="flex-1 overflow-hidden relative flex flex-col">
+
+          {/* VIEW: INBOX */}
+          {view === "inbox" && (
+            <Inbox />
+          )}
 
           {/* VIEW: OUTREACH */}
           {view === "outreach" && (
