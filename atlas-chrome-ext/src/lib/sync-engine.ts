@@ -202,6 +202,12 @@ async function upsertContact(lead: PBLead, state: SyncState): Promise<string | n
         'Sales Nav List Status': select(classification.salesNav),
       }
 
+      // Set Connection Status if not already set (don't overwrite "Following" or "Connected")
+      const existingStatus = (existing.properties as any)?.['Connection Status']?.select?.name
+      if (!existingStatus) {
+        updates['Connection Status'] = select('Not Connected')
+      }
+
       // Update enriched fields if available
       if (lead.companyName) {
         updates['Company'] = richText(lead.companyName)
@@ -251,6 +257,7 @@ async function upsertContact(lead: PBLead, state: SyncState): Promise<string | n
       'LinkedIn Degree': select(degree),
       'Relationship Stage': select('Engaged'),
       'Connection Level': select(degree),
+      'Connection Status': select('Not Connected'), // Default: needs outreach automation
       'Sector': select(classification.sector),
       'Grove Alignment': select(classification.alignment),
       'Priority': select(classification.priority),
@@ -869,26 +876,84 @@ export async function fetchContactsBySegment(salesNavStatus: string): Promise<No
 /**
  * Mark contacts as "Following" after successful Save+Follow automation
  */
-export async function markContactsAsFollowing(contactPageIds: string[]): Promise<number> {
+export async function markContactsAsFollowing(
+  contacts: Array<{ pageId: string; salesNavUrl?: string }>,
+  options?: { includeRelationshipStage?: boolean; includeFollowDate?: boolean }
+): Promise<{ updated: number; errors: string[] }> {
   let updated = 0
+  const errors: string[] = []
   const today = new Date().toISOString().slice(0, 10)
 
-  for (const pageId of contactPageIds) {
+  for (const contact of contacts) {
     try {
-      await updatePage(pageId, {
+      const updates: Record<string, unknown> = {
         'Connection Status': select('Following'),
         'Last Active': date(today),
-      })
+      }
+
+      // Optional: Set Relationship Stage to "Engaged"
+      if (options?.includeRelationshipStage) {
+        updates['Relationship Stage'] = select('Engaged')
+      }
+
+      // Optional: Set Follow Date to today (tracks when we started following)
+      if (options?.includeFollowDate) {
+        updates['Follow Date'] = date(today)
+      }
+
+      // Update Sales Navigator URL if captured during automation
+      if (contact.salesNavUrl) {
+        updates['Sales Navigator URL'] = url(contact.salesNavUrl)
+      }
+
+      await updatePage(contact.pageId, updates)
       updated++
-      await debugLog('orchestrator', `✓ Marked ${pageId} as Following in Notion`)
+      await debugLog('orchestrator', `✓ Marked ${contact.pageId} as Following in Notion`)
       await delay(300) // Rate limit
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
-      await debugLog('orchestrator', `Failed to update ${pageId}: ${msg}`)
+      const error = `Failed to update ${contact.pageId}: ${msg}`
+      await debugLog('orchestrator', error)
+      errors.push(error)
     }
   }
 
-  await debugLog('orchestrator', `Updated ${updated}/${contactPageIds.length} contacts in Notion`)
+  await debugLog('orchestrator', `Updated ${updated}/${contacts.length} contacts in Notion`)
+  return { updated, errors }
+}
+
+/**
+ * Mark contacts as "Failed Outreach" after automation failures
+ */
+export async function markContactsAsFailed(
+  failures: Array<{ pageId: string; error: string }>
+): Promise<number> {
+  let updated = 0
+  const today = new Date().toISOString().slice(0, 10)
+
+  for (const failure of failures) {
+    try {
+      const updates: Record<string, unknown> = {
+        'Connection Status': select('Failed Outreach'),
+        'Last Active': date(today),
+      }
+
+      // Append error details to Atlas Notes
+      if (failure.error) {
+        updates['Atlas Notes'] = richText(`Error: ${failure.error}`)
+      }
+
+      await updatePage(failure.pageId, updates)
+      updated++
+      await debugLog('orchestrator', `✓ Marked ${failure.pageId} as Failed Outreach in Notion`)
+      await delay(300) // Rate limit
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      await debugLog('orchestrator', `Failed to update failed contact ${failure.pageId}: ${msg}`)
+    }
+  }
+
+  await debugLog('orchestrator', `Updated ${updated}/${failures.length} failed contacts in Notion`)
   return updated
 }
 

@@ -217,19 +217,31 @@ export function classifyPriority(alignment: string, hasCommented: boolean, comme
 }
 
 export function classifySalesNavStatus(sector: string, buckets: string[]): string {
+  // Priority 1: Bucket-based (most specific)
   if (buckets.includes('University Pipeline')) {
     return 'Saved - Academic'
   }
   if (buckets.includes('Enterprise Clients')) {
     return 'Saved - Enterprise'
   }
+
+  // Priority 2: Sector-based
   if (sector === 'AI/ML Specialist' || sector === 'Tech' || buckets.includes('Technical Contributors')) {
     return 'Saved - Technical'
   }
   if (sector === 'Influencer' || buckets.includes('Content Amplifiers')) {
     return 'Saved - Influencer'
   }
-  return 'Not Saved'
+  if (sector === 'Academia') {
+    return 'Saved - Academic'
+  }
+  if (sector === 'Corporate' || sector === 'Investor') {
+    return 'Saved - Enterprise'
+  }
+
+  // Priority 3: Default for engaged contacts (Job Seekers, Other, etc.)
+  // Anyone who engaged with your content is worth following → assign to Technical (broadest category)
+  return 'Saved - Technical'
 }
 
 // --- Full Classification Pipeline ---

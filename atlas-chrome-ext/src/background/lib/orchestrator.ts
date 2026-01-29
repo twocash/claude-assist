@@ -14,6 +14,7 @@ import {
   waitForTabComplete,
   waitForContentReady,
 } from "./tab-manager"
+import { markContactsAsFollowing, markContactsAsFailed } from "~src/lib/sync-engine"
 
 const storage = new Storage({ area: "local" })
 
@@ -49,6 +50,10 @@ export async function processQueue(): Promise<void> {
   if (queue.current >= leads.length) {
     await updateQueueState({ status: "completed", completedAt: new Date().toISOString() })
     await debugLog("orchestrator", `Queue completed (${leads.length} leads)`)
+
+    // Auto-sync to Notion
+    await autoSyncQueueResults()
+
     return
   }
 
@@ -127,6 +132,7 @@ export async function processQueue(): Promise<void> {
       errorType: result.errorType,
       logs: result.logs || [],
       scrapedText: result.scrapedText,
+      salesNavUrl: result.salesNavUrl,
       timestamp: Date.now(),
     })
   } catch (error) {
@@ -194,4 +200,51 @@ export async function resetQueue(): Promise<void> {
     startedAt: undefined,
     completedAt: undefined,
   })
+}
+
+/**
+ * Auto-sync queue results to Notion after completion
+ */
+async function autoSyncQueueResults(): Promise<void> {
+  try {
+    await debugLog("orchestrator", "Triggering auto-sync to Notion...")
+
+    const queue = await getQueueState()
+    if (!queue) {
+      await debugLog("orchestrator", "Auto-sync: No queue state found")
+      return
+    }
+
+    // Separate successes and failures
+    const succeeded = queue.leads
+      .filter((l) => l.status === "completed" && l.notionPageId)
+      .map((l) => ({
+        pageId: l.notionPageId!,
+        salesNavUrl: l.result?.salesNavUrl,
+      }))
+
+    const failed = queue.leads
+      .filter((l) => l.status === "failed" && l.notionPageId)
+      .map((l) => ({ pageId: l.notionPageId!, error: l.result?.error || "Unknown error" }))
+
+    // Update both succeeded and failed contacts
+    const successResult = await markContactsAsFollowing(succeeded, {
+      includeRelationshipStage: true,
+      includeFollowDate: true,
+    })
+    const failedCount = await markContactsAsFailed(failed)
+
+    await debugLog(
+      "orchestrator",
+      `Auto-sync: ${successResult.updated} succeeded, ${failedCount} failed`
+    )
+
+    if (successResult.errors.length > 0) {
+      await debugLog("orchestrator", `Auto-sync errors: ${successResult.errors.join("; ")}`)
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    await debugLog("orchestrator", `Auto-sync error: ${message}`)
+    // Don't throw - auto-sync failure shouldn't break queue completion
+  }
 }

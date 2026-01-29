@@ -21,6 +21,7 @@ import {
   getSegmentPendingCounts,
   fetchContactsBySegment,
   markContactsAsFollowing,
+  markContactsAsFailed,
 } from "~src/lib/sync-engine"
 
 const storage = new Storage({ area: "local" })
@@ -313,11 +314,57 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 
   if (message.name === "UPDATE_PROCESSED_CONTACTS") {
-    const { contactPageIds } = message.body || {}
+    const { contacts, contactPageIds, includeExtendedFields } = message.body || {}
     ;(async () => {
       try {
-        const updated = await markContactsAsFollowing(contactPageIds || [])
-        sendResponse({ ok: true, updated })
+        // Support both old format (contactPageIds) and new format (contacts with salesNavUrl)
+        const contactData = contacts || (contactPageIds || []).map((pageId: string) => ({ pageId }))
+        const result = await markContactsAsFollowing(contactData, {
+          includeRelationshipStage: includeExtendedFields,
+          includeFollowDate: includeExtendedFields,
+        })
+        sendResponse({ ok: true, updated: result.updated, errors: result.errors })
+      } catch (error) {
+        sendResponse({ ok: false, error: String(error) })
+      }
+    })()
+    return true
+  }
+
+  if (message.name === "AUTO_SYNC_QUEUE_RESULTS") {
+    ;(async () => {
+      try {
+        const queue = await storage.get<TaskQueueState>(STORAGE_KEYS.QUEUE_STATE)
+        if (!queue) {
+          sendResponse({ ok: false, error: "No queue state found" })
+          return
+        }
+
+        // Separate successes and failures
+        const succeeded = queue.leads
+          .filter((l) => l.status === "completed" && l.notionPageId)
+          .map((l) => ({
+            pageId: l.notionPageId!,
+            salesNavUrl: l.result?.salesNavUrl,
+          }))
+
+        const failed = queue.leads
+          .filter((l) => l.status === "failed" && l.notionPageId)
+          .map((l) => ({ pageId: l.notionPageId!, error: l.result?.error || "Unknown error" }))
+
+        // Update both succeeded and failed contacts
+        const successResult = await markContactsAsFollowing(succeeded, {
+          includeRelationshipStage: true,
+          includeFollowDate: true,
+        })
+        const failedCount = await markContactsAsFailed(failed)
+
+        sendResponse({
+          ok: true,
+          succeeded: successResult.updated,
+          failed: failedCount,
+          errors: successResult.errors,
+        })
       } catch (error) {
         sendResponse({ ok: false, error: String(error) })
       }

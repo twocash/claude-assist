@@ -27,6 +27,7 @@ export interface LeadResult {
   errorType?: "SELECTOR_FAILURE" | "TIMEOUT" | "NETWORK" | "UNKNOWN"
   logs?: string[]
   scrapedText?: string // Profile text for later LLM batch
+  salesNavUrl?: string // Sales Navigator URL captured during automation
   timestamp: number
 }
 

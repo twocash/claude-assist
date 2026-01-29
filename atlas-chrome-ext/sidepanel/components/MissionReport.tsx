@@ -3,7 +3,7 @@
  * Shows results + "Close the Loop" action to update Notion
  */
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { TaskQueueState } from "~src/types/leads"
 import { RunSummary } from "./RunSummary"
 import { ExportResults } from "./ExportResults"
@@ -16,29 +16,60 @@ interface MissionReportProps {
 export function MissionReport({ queue, onClose }: MissionReportProps) {
   const [isSyncing, setIsSyncing] = useState(false)
   const [synced, setSynced] = useState(false)
+  const [autoSynced, setAutoSynced] = useState(false)
+  const [syncError, setSyncError] = useState<string | null>(null)
+  const [syncStats, setSyncStats] = useState<{ succeeded: number; failed: number } | null>(null)
 
   const succeeded = queue.leads.filter((l) => l.status === "completed")
   const failed = queue.leads.filter((l) => l.status === "failed")
 
+  // Detect auto-sync completion (within last 60 seconds)
+  useEffect(() => {
+    if (queue.status === "completed" && queue.completedAt) {
+      const completedTime = new Date(queue.completedAt).getTime()
+      const now = Date.now()
+      if (now - completedTime < 60000) {
+        // Assume auto-sync ran successfully
+        setAutoSynced(true)
+        setSynced(true)
+      }
+    }
+  }, [queue])
+
   const handleSyncToNotion = async () => {
     setIsSyncing(true)
+    setSyncError(null)
 
     try {
       // Update Notion: mark all succeeded contacts as "Following"
+      // Build contact data with Sales Nav URLs from results
+      const contacts = succeeded
+        .filter((l) => l.notionPageId)
+        .map((l) => ({
+          pageId: l.notionPageId!,
+          salesNavUrl: l.result?.salesNavUrl,
+        }))
+
       const response = await chrome.runtime.sendMessage({
         name: "UPDATE_PROCESSED_CONTACTS",
         body: {
-          contactPageIds: succeeded
-            .map((l) => l.notionPageId)
-            .filter(Boolean),
+          contacts,
+          includeExtendedFields: true,
         },
       })
 
       if (response?.ok) {
         setSynced(true)
+        setSyncStats({ succeeded: response.updated, failed: 0 })
+        if (response.errors?.length > 0) {
+          setSyncError(`${response.errors.length} errors occurred`)
+        }
+      } else {
+        setSyncError(response?.error || "Unknown error")
       }
     } catch (e) {
       console.error("Failed to sync to Notion:", e)
+      setSyncError(e instanceof Error ? e.message : "Unknown error")
     } finally {
       setIsSyncing(false)
     }
@@ -66,19 +97,40 @@ export function MissionReport({ queue, onClose }: MissionReportProps) {
 
       {/* Actions */}
       <div className="px-4 py-4 border-t border-gray-200 bg-gray-50 space-y-3">
+        {/* Auto-sync success banner */}
+        {autoSynced && !syncError && (
+          <div className="text-center py-3 text-sm text-green-700 bg-green-100 rounded-lg font-medium">
+            ✓ Notion updated automatically
+          </div>
+        )}
+
+        {/* Partial failure or error banner */}
+        {syncError && (
+          <div className="text-center py-2 text-xs text-orange-700 bg-orange-100 rounded-lg">
+            ⚠️ {syncError}
+          </div>
+        )}
+
+        {/* Manual sync button (shown if not synced or as retry) */}
         {!synced ? (
           <button
             onClick={handleSyncToNotion}
             disabled={isSyncing || succeeded.length === 0}
             className="w-full bg-green-600 text-white py-3 rounded-lg font-bold shadow-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSyncing ? "Syncing to Notion..." : `Update ${succeeded.length} Contacts in Notion`}
+            {isSyncing
+              ? "Syncing to Notion..."
+              : syncError
+                ? `Retry Sync (${succeeded.length} Contacts)`
+                : `Update ${succeeded.length} Contacts in Notion`}
           </button>
-        ) : (
+        ) : !autoSynced ? (
           <div className="text-center py-3 text-sm text-green-700 bg-green-100 rounded-lg font-medium">
-            ✓ Notion updated successfully
+            {syncStats
+              ? `✓ Updated ${syncStats.succeeded}/${succeeded.length} contacts`
+              : "✓ Notion updated successfully"}
           </div>
-        )}
+        ) : null}
 
         <ExportResults queue={queue} />
 

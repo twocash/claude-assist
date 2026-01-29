@@ -104,7 +104,7 @@ export function OutreachView() {
   // --- RENDER MODES ---
 
   // MODE 1: SELECTION (The Menu of Work)
-  if (mode === "selection" && !queue) {
+  if (mode === "selection") {
     return (
       <div className="h-full flex flex-col p-4 space-y-3 overflow-y-auto">
         <div className="flex items-center justify-between mb-2">

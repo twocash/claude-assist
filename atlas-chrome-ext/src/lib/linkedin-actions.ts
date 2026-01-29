@@ -45,12 +45,20 @@ export async function executeSaveAndFollow(
       logs.push(`Scraped ${scrapedText.length} chars of profile text`)
     }
 
+    // --- Step 4: Capture Sales Navigator URL if on Sales Nav page ---
+    let salesNavUrl: string | undefined
+    if (pageType === "sales_nav") {
+      salesNavUrl = window.location.href
+      logs.push(`Captured Sales Nav URL: ${salesNavUrl}`)
+    }
+
     return {
       success: savedToList || followed, // Success if either action worked
       savedToList,
       followed,
       logs,
       scrapedText,
+      salesNavUrl,
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

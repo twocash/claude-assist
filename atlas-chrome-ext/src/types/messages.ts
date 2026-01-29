@@ -40,6 +40,7 @@ export interface ActionResultMessage {
   errorType?: LeadResult["errorType"]
   logs: string[]
   scrapedText?: string
+  salesNavUrl?: string
 }
 
 export interface ReadyResponse {
