@@ -6,14 +6,20 @@ import { PostRow } from "./PostRow"
 import { AddPostForm } from "./AddPostForm"
 import { CommentQueue } from "./CommentQueue"
 
-type SubView = "posts" | "replies"
+type SubView = "posts" | "replies" | "creating"
 
 export function PostsTab() {
   const [postsState, { addPost, updatePost, removePost, refreshStats }] = usePostsState()
   const [commentsState, { updateComment, removeComment, replaceAllComments, loadMockData }] = useCommentsState()
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const [subView, setSubView] = useState<SubView>("posts")
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleAddPost = async (url: string, title: string) => {
+    const post = await addPost(url, title)
+    if (post) {
+      setSubView("posts")
+    }
+  }
 
   const needsReplyCount = commentsState.comments.filter((c) => c.status === "needs_reply").length
   const [isSyncing, setIsSyncing] = useState(false)
@@ -60,13 +66,6 @@ export function PostsTab() {
     }
   }
 
-  const handleAddPost = async (url: string, title: string) => {
-    const post = await addPost(url, title)
-    if (post) {
-      setShowAddForm(false)
-    }
-  }
-
   const handleMonitor = async (postId: string) => {
     // Update status to running
     await updatePost(postId, { scrapeStatus: "running" })
@@ -91,6 +90,24 @@ export function PostsTab() {
   )
 
   
+  // If creating, show the form in full focus (Gemini's recommendation)
+  if (subView === "creating") {
+    return (
+      <div className="h-full flex flex-col p-4">
+        <button
+          onClick={() => setSubView("posts")}
+          className="text-xs text-gray-500 hover:text-gray-900 mb-3 flex items-center gap-1 self-start"
+        >
+          ← Cancel
+        </button>
+        <AddPostForm
+          onAdd={handleAddPost}
+          onCancel={() => setSubView("posts")}
+        />
+      </div>
+    )
+  }
+
   // If viewing replies, render the CommentQueue instead
   if (subView === "replies") {
     return (
@@ -126,59 +143,37 @@ export function PostsTab() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with totals */}
-      <div className="px-4 py-3 bg-white border-b border-gray-200">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-gray-800">Post Analytics</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setSubView("replies")}
-              className="text-[10px] text-atlas-600 hover:text-atlas-700 relative"
-            >
-              Replies
-              {needsReplyCount > 0 && (
-                <span className="absolute -top-1 -right-2 w-4 h-4 bg-amber-500 text-white text-[8px] rounded-full flex items-center justify-center">
-                  {needsReplyCount}
-                </span>
-              )}
-            </button>
-            <span className="text-gray-300">|</span>
-            <button
-              onClick={handleFullSync}
-              disabled={isSyncing}
-              className="text-[10px] bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50"
-            >
-              {isSyncing ? "Syncing..." : "Sync All"}
-            </button>
-            <button
-              onClick={handleTestLeadsAPI}
-              className="text-[10px] text-purple-600 hover:text-purple-700"
-            >
-              Test API
-            </button>
-            <button
-              onClick={() => window.open('https://phantombuster.com/2316148405398457/leads', 'pb_leads')}
-              className="text-[10px] text-gray-600 hover:text-gray-700"
-            >
-              PB Leads →
-            </button>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="text-[10px] bg-atlas-600 text-white px-2 py-1 rounded hover:bg-atlas-700"
-            >
-              + Add
-            </button>
+      {/* HERO: Add Post Button (Gemini recommendation) */}
+      <div className="p-4 bg-white">
+        <button
+          onClick={() => setSubView("creating")}
+          className="w-full py-3 bg-white border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center gap-2 text-gray-600 font-medium hover:border-atlas-400 hover:text-atlas-600 transition-all group"
+        >
+          <div className="w-8 h-8 rounded-full bg-atlas-50 text-atlas-600 flex items-center justify-center group-hover:bg-atlas-100">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
           </div>
-        </div>
+          <span className="text-sm">Add Post to Monitor</span>
+        </button>
+      </div>
 
-        {/* Sync status banner */}
-        {syncStatus && (
-          <div className={`text-[10px] px-2 py-1 rounded mb-2 ${
-            syncStatus.includes("Error") ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
-          }`}>
-            {syncStatus}
-          </div>
-        )}
+      {/* Performance Stats */}
+      <div className="px-4 pb-3 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Performance</h3>
+          <button
+            onClick={() => setSubView("replies")}
+            className="text-[10px] text-atlas-600 hover:text-atlas-700 relative"
+          >
+            View Replies
+            {needsReplyCount > 0 && (
+              <span className="ml-1 bg-amber-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">
+                {needsReplyCount}
+              </span>
+            )}
+          </button>
+        </div>
 
         {/* Totals row */}
         <div className="grid grid-cols-3 gap-2 text-center">
@@ -197,14 +192,6 @@ export function PostsTab() {
         </div>
       </div>
 
-      {/* Add post form modal */}
-      {showAddForm && (
-        <AddPostForm
-          onAdd={handleAddPost}
-          onCancel={() => setShowAddForm(false)}
-        />
-      )}
-
       {/* Posts list */}
       <div className="flex-1 overflow-y-auto">
         {postsState.posts.length === 0 ? (
@@ -212,7 +199,7 @@ export function PostsTab() {
             <div className="text-center">
               <div className="text-gray-400 text-sm mb-2">No posts monitored yet</div>
               <button
-                onClick={() => setShowAddForm(true)}
+                onClick={() => setSubView("creating")}
                 className="text-xs text-atlas-600 hover:underline"
               >
                 Add your first post
