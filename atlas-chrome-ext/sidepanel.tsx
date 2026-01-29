@@ -3,28 +3,25 @@ import "./style.css"
 import { useQueueState } from "~src/lib/hooks"
 import { HEARTBEAT_INTERVAL } from "~src/lib/constants"
 import { Header } from "~sidepanel/components/Header"
-import { CsvImport } from "~sidepanel/components/CsvImport"
+import { NavRail, type ViewId } from "~sidepanel/components/NavRail"
+
+// Import your existing components
+import { PostsTab } from "~sidepanel/components/PostsTab"
+import { AdHocReply } from "~sidepanel/components/AdHocReply"
 import { TaskQueue } from "~sidepanel/components/TaskQueue"
 import { ProgressBar } from "~sidepanel/components/ProgressBar"
 import { Controls } from "~sidepanel/components/Controls"
-import { ModelSelector } from "~sidepanel/components/ModelSelector"
-import { ApiKeySetup } from "~sidepanel/components/ApiKeySetup"
 import { RunSummary } from "~sidepanel/components/RunSummary"
 import { ExportResults } from "~sidepanel/components/ExportResults"
-import { DebugLogViewer } from "~sidepanel/components/DebugLogViewer"
-import { PostsTab } from "~sidepanel/components/PostsTab"
-import { AdHocReply } from "~sidepanel/components/AdHocReply"
+import { CsvImport } from "~sidepanel/components/CsvImport"
+import { ModelSelector } from "~sidepanel/components/ModelSelector"
+import { ApiKeySetup } from "~sidepanel/components/ApiKeySetup"
 import { EnrichmentImport } from "~sidepanel/components/EnrichmentImport"
+import { DebugLogViewer } from "~sidepanel/components/DebugLogViewer"
 
-// --- Error Boundary ---
-
-interface ErrorBoundaryState {
-  hasError: boolean
-  error: string
-}
-
-class ErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { hasError: false, error: "" }
+// Simple Error Boundary
+class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: string }> {
+  state = { hasError: false, error: "" }
 
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error: error.message }
@@ -37,19 +34,15 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBounda
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-          <div className="text-center space-y-2">
-            <div className="text-sm font-medium text-red-600">Atlas UI Error</div>
-            <div className="text-xs text-gray-500 max-w-xs break-words">
-              {this.state.error}
-            </div>
-            <button
-              onClick={() => this.setState({ hasError: false, error: "" })}
-              className="text-xs text-atlas-600 underline"
-            >
-              Retry
-            </button>
-          </div>
+        <div className="p-4 text-center">
+          <div className="text-sm font-medium text-red-600 mb-2">Atlas UI Error</div>
+          <div className="text-xs text-gray-500 mb-2">{this.state.error}</div>
+          <button
+            onClick={() => this.setState({ hasError: false, error: "" })}
+            className="text-xs text-atlas-600 underline"
+          >
+            Retry
+          </button>
         </div>
       )
     }
@@ -57,147 +50,121 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBounda
   }
 }
 
-// --- Main Panel ---
-
-type View = "posts" | "adhoc" | "queue" | "setup" | "settings" | "logs"
-
 function SidePanelInner() {
   const [queue] = useQueueState()
-  const [view, setView] = useState<View>("posts")
+  const [view, setView] = useState<ViewId>("outreach")
   const portRef = useRef<chrome.runtime.Port | null>(null)
   const didAutoSwitch = useRef(false)
 
-  // Auto-switch to queue view ONCE on first load if leads exist
+  // 1. Smart Context Switching (The "AI" feel)
   useEffect(() => {
-    if (!didAutoSwitch.current && queue && queue.leads.length > 0) {
-      didAutoSwitch.current = true
-      setView("queue")
-    }
-  }, [queue?.leads.length])
+    if (didAutoSwitch.current) return
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const url = tabs[0]?.url || ""
 
-  // Heartbeat: keep background service worker alive (with reconnect)
+      // Priority: If Queue is running, show queue
+      if (queue?.status === "running") {
+        setView("outreach")
+        didAutoSwitch.current = true
+        return
+      }
+
+      // Priority: Context
+      if (url.includes("/sales/")) setView("outreach")
+      else if (url.includes("/feed") || url.includes("/in/")) setView("studio")
+
+      didAutoSwitch.current = true
+    })
+  }, [queue?.status])
+
+  // 2. Heartbeat (Keep Service Worker Alive)
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null
-    let alive = true
-
-    function connect() {
+    const connect = () => {
       try {
         const port = chrome.runtime.connect({ name: "heartbeat" })
         portRef.current = port
-
-        port.onDisconnect.addListener(() => {
-          portRef.current = null
-          // Reconnect after a short delay if component is still mounted
-          if (alive) setTimeout(connect, 2000)
-        })
-
-        interval = setInterval(() => {
-          try {
-            port.postMessage({ type: "PING" })
-          } catch {
-            // Port died — onDisconnect will handle reconnect
-          }
-        }, HEARTBEAT_INTERVAL)
-      } catch {
-        // Service worker not ready — retry
-        if (alive) setTimeout(connect, 2000)
-      }
+        port.onDisconnect.addListener(() => setTimeout(connect, 2000))
+        interval = setInterval(() => { try { port.postMessage({ type: "PING" }) } catch { } }, HEARTBEAT_INTERVAL)
+      } catch { setTimeout(connect, 2000) }
     }
-
     connect()
-
-    return () => {
-      alive = false
-      if (interval) clearInterval(interval)
-      try { portRef.current?.disconnect() } catch { /* ignore */ }
-    }
+    return () => { if (interval) clearInterval(interval); portRef.current?.disconnect() }
   }, [])
 
-  const isConnected = queue !== null
+  const isRunning = queue?.status === "running"
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <Header connected={isConnected} />
+    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
+      {/* LEFT RAIL */}
+      <NavRail activeView={view} onSelect={setView} hasActiveTask={isRunning} />
 
-      {/* Tab bar */}
-      <div className="flex border-b border-gray-200 bg-white px-4">
-        <TabButton label="Posts" active={view === "posts"} onClick={() => setView("posts")} />
-        <TabButton label="Quick Reply" active={view === "adhoc"} onClick={() => setView("adhoc")} />
-        <TabButton label="Queue" active={view === "queue"} onClick={() => setView("queue")} />
-        <TabButton label="Settings" active={view === "settings"} onClick={() => setView("settings")} />
-        <TabButton label="Logs" active={view === "logs"} onClick={() => setView("logs")} />
-      </div>
+      {/* MAIN CONTENT */}
+      <div className="flex-1 flex flex-col min-w-0 bg-white">
+        <Header connected={!!queue} />
 
-      {/* Content area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {view === "posts" && <PostsTab />}
+        <div className="flex-1 overflow-hidden relative flex flex-col">
 
-        {view === "adhoc" && <AdHocReply />}
+          {/* VIEW: OUTREACH */}
+          {view === "outreach" && (
+            <div className="h-full flex flex-col">
+              {/* Show Import only if no queue exists */}
+              {!queue ? (
+                <CsvImport onImported={() => { }} />
+              ) : (
+                <>
+                  <ProgressBar queue={queue} />
+                  {queue.status === "completed" && <RunSummary queue={queue} />}
+                  <TaskQueue queue={queue} />
+                  <Controls queue={queue} />
+                  <ExportResults queue={queue} />
+                </>
+              )}
+            </div>
+          )}
 
-        {view === "setup" && <CsvImport onImported={() => setView("queue")} />}
+          {/* VIEW: STUDIO (Merged Posts + Reply) */}
+          {view === "studio" && (
+            <div className="h-full flex flex-col overflow-y-auto p-2">
+              <div className="mb-6">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Quick Reply</h3>
+                <AdHocReply />
+              </div>
+              <div className="border-t border-gray-100 pt-4">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Post Analytics</h3>
+                <PostsTab />
+              </div>
+            </div>
+          )}
 
-        {view === "queue" && queue && (
-          <>
-            <ProgressBar queue={queue} />
-            {queue.status === "completed" && <RunSummary queue={queue} />}
-            <TaskQueue queue={queue} />
-            <Controls queue={queue} />
-            <ExportResults queue={queue} />
-          </>
-        )}
-        {view === "queue" && !queue && (
-          <div className="flex-1 flex items-center justify-center p-4">
-            <p className="text-xs text-gray-400 text-center">
-              No queue loaded. Import a CSV to get started.
-            </p>
-          </div>
-        )}
-
-        {view === "settings" && (
-          <div className="flex-1 overflow-y-auto">
-            <ModelSelector />
-            <div className="border-t border-gray-200" />
-            <ApiKeySetup />
-            <div className="border-t border-gray-200" />
-            <EnrichmentImport onComplete={(count) => console.log(`Enriched ${count} contacts`)} />
-          </div>
-        )}
-
-        {view === "logs" && <DebugLogViewer />}
+          {/* VIEW: SETTINGS */}
+          {view === "settings" && (
+            <div className="h-full overflow-y-auto p-4 space-y-6">
+              <section>
+                <h2 className="text-sm font-bold text-gray-900 mb-3">Intelligence</h2>
+                <ModelSelector />
+                <div className="mt-2"><ApiKeySetup /></div>
+              </section>
+              <section className="pt-4 border-t border-gray-100">
+                <h2 className="text-sm font-bold text-gray-900 mb-3">Data Enrichment</h2>
+                <EnrichmentImport onComplete={() => { }} />
+              </section>
+              <section className="pt-4 border-t border-gray-100">
+                <h2 className="text-sm font-bold text-gray-900 mb-3">Logs</h2>
+                <div className="h-64 border rounded bg-gray-50 overflow-hidden"><DebugLogViewer /></div>
+              </section>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
 }
 
-function TabButton({
-  label,
-  active,
-  onClick,
-}: {
-  label: string
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
-        active
-          ? "border-atlas-500 text-atlas-700"
-          : "border-transparent text-gray-400 hover:text-gray-600"
-      }`}
-    >
-      {label}
-    </button>
-  )
-}
-
-function SidePanel() {
+export default function SidePanel() {
   return (
     <ErrorBoundary>
       <SidePanelInner />
     </ErrorBoundary>
   )
 }
-
-export default SidePanel
