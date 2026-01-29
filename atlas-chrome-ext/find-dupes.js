@@ -2,7 +2,7 @@
  * Find duplicate contacts and show their memberIds
  */
 
-const NOTION_KEY = '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';
+const NOTION_KEY = process.env.NOTION_API_KEY || '';
 const CONTACTS_DB = '08b9f73264b24e4b82d4c842f5a11cc8';
 
 const NOTION_HEADERS = {
