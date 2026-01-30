@@ -2,13 +2,18 @@
  * Atlas Telegram Bot - Chat Handler
  *
  * Handles chat intent: conversational, unclear, general chat
+ * Now with optional cognitive router integration.
  */
 
 import type { Context } from "grammy";
 import type { IntentDetectionResult } from "../types";
 import { generateResponse, generateResponseWithTools } from "../claude";
+import { supervise, getQuickResponse as cognitiveQuickResponse } from "../cognitive";
 import { logger } from "../logger";
 import { audit } from "../audit";
+
+// Feature flag for cognitive router (enable when ready)
+const USE_COGNITIVE_ROUTER = process.env.USE_COGNITIVE_ROUTER === "true";
 
 // Simple conversation history per user (in-memory)
 const conversationHistory = new Map<number, Array<{ role: "user" | "assistant"; content: string }>>();
@@ -27,7 +32,7 @@ export async function handleChatIntent(
 
   await ctx.replyWithChatAction("typing");
 
-  // Check for quick responses first
+  // Check for quick responses first (no LLM needed)
   const quickResponse = getQuickResponse(text);
   if (quickResponse) {
     await ctx.reply(quickResponse);
@@ -36,18 +41,18 @@ export async function handleChatIntent(
   }
 
   try {
-    // Get conversation history
+    let response: string;
+
+    if (USE_COGNITIVE_ROUTER) {
+      // Use cognitive router for intelligent model selection
+      response = await handleWithCognitiveRouter(text, userId);
+    } else {
+      // Use existing tool-aware response
+      response = await handleWithLegacyRouter(text, userId);
+    }
+
+    // Update conversation history
     const history = conversationHistory.get(userId) || [];
-
-    // Detect if this might need tools (looks like a data query)
-    const mightNeedTools = /\b(inbox|queue|work|status|tasks?|items?|what'?s|show|list|urgent|p0|priority|focus|should|blocked|atlas|how'?s)\b/i.test(text);
-
-    // Use tool-aware response if message hints at needing data
-    const response = mightNeedTools
-      ? await generateResponseWithTools(text, history)
-      : await generateResponse(text, history);
-
-    // Update history
     history.push({ role: "user", content: text });
     history.push({ role: "assistant", content: response });
 
@@ -66,25 +71,68 @@ export async function handleChatIntent(
 }
 
 /**
+ * Handle chat with cognitive router
+ */
+async function handleWithCognitiveRouter(text: string, userId: number): Promise<string> {
+  const history = conversationHistory.get(userId) || [];
+
+  const result = await supervise({
+    input: text,
+    conversationHistory: history,
+    userId,
+  });
+
+  if (result.needsReview) {
+    // Return the review reason to user
+    return result.reviewReason || "This action requires approval.";
+  }
+
+  if (!result.success) {
+    logger.warn("Cognitive router returned failure", {
+      taskId: result.taskId,
+      content: result.content,
+    });
+    return result.content || "Something went wrong. Try again?";
+  }
+
+  // Log token usage
+  if (result.totalCost > 0) {
+    logger.debug("Cognitive router cost", {
+      taskId: result.taskId,
+      cost: result.totalCost.toFixed(6),
+      latency: result.totalLatencyMs,
+    });
+  }
+
+  return result.content;
+}
+
+/**
+ * Handle chat with legacy router (existing implementation)
+ */
+async function handleWithLegacyRouter(text: string, userId: number): Promise<string> {
+  const history = conversationHistory.get(userId) || [];
+
+  // Detect if this might need tools (looks like a data query)
+  const mightNeedTools = /\b(inbox|queue|work|status|tasks?|items?|what'?s|show|list|urgent|p0|priority|focus|should|blocked|atlas|how'?s)\b/i.test(text);
+
+  // Use tool-aware response if message hints at needing data
+  return mightNeedTools
+    ? await generateResponseWithTools(text, history)
+    : await generateResponse(text, history);
+}
+
+/**
  * Get quick response for common messages
  */
 function getQuickResponse(text: string): string | null {
+  // Try cognitive router's quick response first
+  const cognitiveResponse = cognitiveQuickResponse(text);
+  if (cognitiveResponse) {
+    return cognitiveResponse;
+  }
+
   const lowerText = text.toLowerCase().trim();
-
-  // Greetings
-  if (/^(hey|hi|hello|yo|sup)!?$/.test(lowerText)) {
-    return "Hey. What's up?";
-  }
-
-  // Thanks
-  if (/^(thanks|thank you|thx|ty)!?$/.test(lowerText)) {
-    return "Got it.";
-  }
-
-  // Acknowledgments
-  if (/^(ok|okay|cool|nice|good|great|perfect)!?$/.test(lowerText)) {
-    return "Anything else?";
-  }
 
   // Help
   if (/^(help|help me|\?)$/.test(lowerText)) {

@@ -104,7 +104,6 @@ async function formatInboxQuery(pillar?: Pillar): Promise<string> {
 
   // Count by status
   const newItems = result.items.filter(i => i.status === "New").length;
-  const routed = result.items.filter(i => i.status === "Routed").length;
 
   let response = "";
 
@@ -199,44 +198,4 @@ async function formatPendingQuery(pillar?: Pillar): Promise<string> {
   }
 
   return response;
-}
-
-/**
- * Get emoji for status
- */
-function getStatusEmoji(status?: string): string {
-  switch (status) {
-    case "New":
-      return "-";
-    case "Clarifying":
-      return "?";
-    case "Classified":
-      return "-";
-    case "Routed":
-      return ">";
-    case "Archived":
-      return "x";
-    case "Dismissed":
-      return "x";
-    default:
-      return "-";
-  }
-}
-
-/**
- * Get emoji for priority
- */
-function getPriorityEmoji(priority?: string): string {
-  switch (priority) {
-    case "P0":
-      return "!";
-    case "P1":
-      return ">";
-    case "P2":
-      return "-";
-    case "P3":
-      return ".";
-    default:
-      return "-";
-  }
 }

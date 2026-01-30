@@ -7,6 +7,7 @@
 import type { Context } from "grammy";
 import type { IntentDetectionResult } from "../types";
 import { getStatusSummary } from "../notion";
+import { getRoutingHealthSummary, getSessionSummary } from "../cognitive";
 import { logger } from "../logger";
 import { audit } from "../audit";
 
@@ -88,5 +89,28 @@ function formatStatusSummary(summary: {
     response += activePillars.map(([p, c]) => `${p} ${c}`).join(", ");
   }
 
+  // Add cognitive router status if enabled
+  const cognitiveEnabled = process.env.USE_COGNITIVE_ROUTER === "true";
+  if (cognitiveEnabled) {
+    response += `\n\n--- Router ---\n`;
+    response += getSessionSummary();
+  }
+
   return response;
+}
+
+/**
+ * Get cognitive router health status
+ */
+export function getCognitiveRouterStatus(): string {
+  const health = getRoutingHealthSummary();
+
+  const lines = [
+    `Router: ${health.healthy ? "healthy" : "degraded"}`,
+    `  Anthropic: ${health.anthropic ? "yes" : "no"}`,
+    `  OpenAI: ${health.openai ? "yes" : "no"}`,
+    `  OpenRouter: ${health.openrouter ? "yes" : "no"}`,
+  ];
+
+  return lines.join("\n");
 }
