@@ -1,10 +1,13 @@
 import type { Lead } from "~src/types/leads"
+import { SegmentIcon } from "./SegmentIcon"
 
-const SEGMENT_COLORS: Record<string, string> = {
-  academic: "bg-purple-100 text-purple-700",
-  technical: "bg-blue-100 text-blue-700",
-  enterprise: "bg-amber-100 text-amber-700",
-  influencer: "bg-pink-100 text-pink-700",
+type Segment = "academic" | "technical" | "enterprise" | "influencer"
+
+const SEGMENT_COLORS: Record<Segment, string> = {
+  academic: "text-purple-600 bg-purple-50 border-purple-100",
+  technical: "text-cyan-600 bg-cyan-50 border-cyan-100",
+  enterprise: "text-blue-600 bg-blue-50 border-blue-100",
+  influencer: "text-orange-600 bg-orange-50 border-orange-100",
 }
 
 const STATUS_ICONS: Record<string, { icon: string; color: string }> = {
@@ -22,7 +25,7 @@ interface LeadRowProps {
 
 export function LeadRow({ lead, isCurrent }: LeadRowProps) {
   const status = STATUS_ICONS[lead.status] || STATUS_ICONS.pending
-  const segmentColor = SEGMENT_COLORS[lead.segment] || "bg-gray-100 text-gray-600"
+  const badgeStyle = SEGMENT_COLORS[lead.segment as Segment] || "text-gray-600 bg-gray-50 border-gray-100"
 
   return (
     <div
@@ -32,8 +35,9 @@ export function LeadRow({ lead, isCurrent }: LeadRowProps) {
     >
       <span className={`text-sm font-mono ${status.color}`}>{status.icon}</span>
       <span className="flex-1 truncate text-gray-800">{lead.name}</span>
-      <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${segmentColor}`}>
-        {lead.segment}
+      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium border ${badgeStyle}`}>
+        <SegmentIcon segment={lead.segment} className="w-3 h-3" />
+        <span className="capitalize">{lead.segment}</span>
       </span>
     </div>
   )
