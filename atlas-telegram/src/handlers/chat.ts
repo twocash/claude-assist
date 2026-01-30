@@ -7,8 +7,10 @@
 
 import type { Context } from "grammy";
 import type { IntentDetectionResult } from "../types";
+import type { ModelId } from "../cognitive/models";
 import { generateResponse, generateResponseWithTools } from "../claude";
 import { supervise, getQuickResponse as cognitiveQuickResponse } from "../cognitive";
+import { getModelOverride } from "../session";
 import { logger } from "../logger";
 import { audit } from "../audit";
 
@@ -76,10 +78,15 @@ export async function handleChatIntent(
 async function handleWithCognitiveRouter(text: string, userId: number): Promise<string> {
   const history = conversationHistory.get(userId) || [];
 
+  // Check for session model override
+  const modelOverride = getModelOverride(userId);
+  const forceModel = modelOverride !== "auto" ? modelOverride as ModelId : undefined;
+
   const result = await supervise({
     input: text,
     conversationHistory: history,
     userId,
+    forceModel,
   });
 
   if (result.needsReview) {

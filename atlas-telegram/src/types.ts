@@ -151,23 +151,22 @@ export type AtlasStatus =
 
 /**
  * Work queue item status
+ * 
+ * Universal statuses that work for all task types:
+ * - Captured: Exists, no commitment yet
+ * - Active: Currently being worked on
+ * - Paused: Intentionally on hold
+ * - Blocked: Can't proceed, needs something
+ * - Done: Complete
+ * - Shipped: Delivered/published/deployed
  */
 export type WorkStatus = 
-  | "Queued"
-  | "In Progress"
+  | "Captured"
+  | "Active"
+  | "Paused"
   | "Blocked"
-  | "Review"
-  | "Done";
-
-/**
- * Work queue disposition
- */
-export type Disposition = 
-  | "Completed"
-  | "Published"
-  | "Dismissed"
-  | "Deferred"
-  | "Needs Rework";
+  | "Done"
+  | "Shipped";
 
 /**
  * Priority levels

@@ -81,9 +81,10 @@ export async function persistTokenEntry(entry: TokenLedgerEntry): Promise<string
 
     return response.id;
   } catch (error) {
-    logger.error("Failed to persist token entry", {
+    // Log at debug level - Notion persistence is optional
+    logger.debug("Notion persistence skipped (token entry)", {
       taskId: entry.taskId,
-      error: error instanceof Error ? error.message : String(error),
+      reason: error instanceof Error ? error.message : String(error),
     });
     return null;
   }
@@ -160,9 +161,10 @@ export async function persistWorkerResult(
 
     return response.id;
   } catch (error) {
-    logger.error("Failed to persist worker result", {
+    // Log at debug level - Notion persistence is optional
+    logger.debug("Notion persistence skipped (worker result)", {
       taskId: result.taskId,
-      error: error instanceof Error ? error.message : String(error),
+      reason: error instanceof Error ? error.message : String(error),
     });
     return null;
   }

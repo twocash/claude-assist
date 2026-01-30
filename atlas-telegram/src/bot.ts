@@ -10,6 +10,7 @@ import { Bot, InlineKeyboard } from "grammy";
 import { logger } from "./logger";
 import { audit } from "./audit";
 import { routeMessage, routeCallback, cleanupAll, clearUserSession } from "./handlers";
+import { getModelOverride, setModelOverride, MODEL_SHORTCUTS, getModelDisplayName, clearSession } from "./session";
 import type { AtlasContext } from "./types";
 
 // Environment configuration
@@ -79,6 +80,7 @@ export function createBot(): Bot<AtlasContext> {
       "Commands:\n" +
       "/start - Show this\n" +
       "/status - Bot health\n" +
+      "/model - Set AI model\n" +
       "/new - Clear session"
     );
   });
@@ -104,8 +106,42 @@ export function createBot(): Bot<AtlasContext> {
   bot.command("new", async (ctx) => {
     const userId = ctx.from!.id;
     clearUserSession(userId);
+    clearSession(userId);
     cleanupAll(0); // Clear all pending
     await ctx.reply("Session cleared.");
+  });
+
+  // Model override command
+  bot.command("model", async (ctx) => {
+    const userId = ctx.from!.id;
+    const args = ctx.message?.text?.split(" ").slice(1).join(" ").toLowerCase().trim();
+
+    if (!args) {
+      // Show current setting and options
+      const current = getModelOverride(userId);
+      const options = Object.keys(MODEL_SHORTCUTS).join(", ");
+      await ctx.reply(
+        `Current model: ${getModelDisplayName(current)}\n\n` +
+        `Usage: /model <name>\n` +
+        `Options: ${options}\n\n` +
+        `Examples:\n` +
+        `/model auto - Let router decide\n` +
+        `/model haiku - Force Haiku (fast)\n` +
+        `/model sonnet - Force Sonnet (powerful)`
+      );
+      return;
+    }
+
+    const model = MODEL_SHORTCUTS[args];
+    if (!model) {
+      const options = Object.keys(MODEL_SHORTCUTS).join(", ");
+      await ctx.reply(`Unknown model. Options: ${options}`);
+      return;
+    }
+
+    setModelOverride(userId, model);
+    await ctx.reply(`Model set to: ${getModelDisplayName(model)}`);
+    logger.info("Model override set", { userId, model });
   });
 
   // Error handler

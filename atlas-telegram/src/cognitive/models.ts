@@ -5,10 +5,13 @@
  */
 
 export type ModelId =
+  | "claude-opus-4-20250514"
   | "claude-sonnet-4-20250514"
   | "claude-3-5-haiku-20241022"
   | "gpt-4o"
   | "gpt-4o-mini"
+  | "gemini-2.0-flash"
+  | "gemini-2.0-pro"
   | "local";
 
 export type Provider = "anthropic" | "openai" | "openrouter" | "local";
@@ -50,6 +53,16 @@ export interface ModelConfig {
  */
 export const MODEL_CATALOG: Record<ModelId, ModelConfig> = {
   // === Anthropic ===
+  "claude-opus-4-20250514": {
+    provider: "anthropic",
+    tier: "premium",
+    contextWindow: 200000,
+    inputCostPer1M: 15.0,
+    outputCostPer1M: 75.0,
+    strengths: ["reasoning", "code", "analysis", "long_context", "creative"],
+    openrouterModel: "anthropic/claude-opus-4-20250514",
+    maxOutputTokens: 32000,
+  },
   "claude-sonnet-4-20250514": {
     provider: "anthropic",
     tier: "premium",
@@ -91,6 +104,28 @@ export const MODEL_CATALOG: Record<ModelId, ModelConfig> = {
     strengths: ["structured_output", "json_mode", "speed", "cost_efficient"],
     openrouterModel: "openai/gpt-4o-mini",
     maxOutputTokens: 16384,
+  },
+
+  // === Google ===
+  "gemini-2.0-flash": {
+    provider: "openrouter", // Via OpenRouter for now
+    tier: "efficient",
+    contextWindow: 1000000,
+    inputCostPer1M: 0.1,
+    outputCostPer1M: 0.4,
+    strengths: ["speed", "long_context", "cost_efficient", "simple_tasks"],
+    openrouterModel: "google/gemini-2.0-flash-001",
+    maxOutputTokens: 8192,
+  },
+  "gemini-2.0-pro": {
+    provider: "openrouter", // Via OpenRouter for now
+    tier: "premium",
+    contextWindow: 2000000,
+    inputCostPer1M: 1.25,
+    outputCostPer1M: 5.0,
+    strengths: ["reasoning", "long_context", "analysis", "code"],
+    openrouterModel: "google/gemini-2.0-pro-exp-02-05",
+    maxOutputTokens: 8192,
   },
 
   // === Local (No API) ===

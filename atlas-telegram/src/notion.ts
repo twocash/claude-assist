@@ -219,7 +219,7 @@ export async function createWorkItem(
         },
         // Status
         "Status": {
-          select: { name: "Queued" },
+          select: { name: "Captured" },
         },
         // Priority
         "Priority": {
@@ -594,7 +594,7 @@ export async function updateNotionPage(
         complete: "Done",
         archive: "Done",
         dismiss: "Done",
-        defer: "Queued",
+        defer: "Paused",
       };
 
       await getNotionClient().pages.update({
